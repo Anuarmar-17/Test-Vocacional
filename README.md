@@ -178,6 +178,19 @@ Entidades principales:
 
 ---
 
+# 📂 Diagramas de Casos de Uso
+
+Caso de uso 01 - 04: (Registrarse, Iniciar sesión, Realizar autoconocimiento, Realizar test vocacional).
+![CU01 - CU04](./backend/static/img/CU01.png)
+
+Caso de uso 05 - 08: (Visualizar resultados, Obtener recomendacionesprofecionales, Gestionar proyectos de vida, Descargar Resultados).
+![CU05 - CU08](./backend/static/img/CU02.png)
+
+Caso de uso 09 - 12: (Consultar información educativa, Gestionar preguntas, Gestionar profesiones y áreas, Gestionar usuarios y estadísticas).
+![CU09 - CU12](./backend/static/img/CU03.png)
+
+---
+
 # 🌐 Despliegue
 
 ## Frontend
