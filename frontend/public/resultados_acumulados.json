@@ -1,0 +1,39 @@
+{
+  "test_realizado_id": null,
+  "estado": "INICIADO",
+  "total_preguntas": 80,
+  "preguntas_respondidas": 0,
+  "progreso_porcentaje": 0.0,
+  "resultados_por_area": {
+    "Arte y creatividad": {
+      "area_id": 1,
+      "puntos": 0,
+      "maximo_posible": 16,
+      "porcentaje_afinidad": 0.0
+    },
+    "Ciencias sociales": {
+      "area_id": 2,
+      "puntos": 0,
+      "maximo_posible": 16,
+      "porcentaje_afinidad": 0.0
+    },
+    "Económica, administrativa y financiera": {
+      "area_id": 3,
+      "puntos": 0,
+      "maximo_posible": 16,
+      "porcentaje_afinidad": 0.0
+    },
+    "Ciencia y tecnología": {
+      "area_id": 4,
+      "puntos": 0,
+      "maximo_posible": 16,
+      "porcentaje_afinidad": 0.0
+    },
+    "Ciencias ecológicas, biológicas y de salud": {
+      "area_id": 5,
+      "puntos": 0,
+      "maximo_posible": 16,
+      "porcentaje_afinidad": 0.0
+    }
+  }
+}

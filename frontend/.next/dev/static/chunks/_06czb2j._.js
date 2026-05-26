@@ -131,14 +131,19 @@ const PREGUNTAS_MUESTRA = [
 ];
 const NAV_LINKS = [
     {
-        id: "dashboard",
+        id: "inicio",
         label: "Inicio",
         icon: "ti-home"
     },
     {
+        id: "dashboard",
+        label: "Perfil",
+        icon: "ti-user"
+    },
+    {
         id: "autoconocimiento",
         label: "Autoconocimiento",
-        icon: "ti-user"
+        icon: "ti-brain"
     },
     {
         id: "test",
@@ -218,7 +223,7 @@ const INITIAL_LIFE_PROJECT = {
 };
 function VocacionalProvider({ children }) {
     _s();
-    const [view, setView] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("dashboard");
+    const [view, setView] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("inicio");
     const [userName, setUserName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("María López");
     const [reflections, setReflections] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(INITIAL_REFLECTIONS);
     const [testAnswers, setTestAnswers] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(INITIAL_ANSWERS);
@@ -304,11 +309,11 @@ function VocacionalProvider({ children }) {
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/VocacionalContext.tsx",
-        lineNumber: 140,
+        lineNumber: 141,
         columnNumber: 5
     }, this);
 }
-_s(VocacionalProvider, "dEz6f/ABqcYQNi/PQcdiLDQSbfQ=");
+_s(VocacionalProvider, "0DeOk8rmY7FF7/JEQpjrH0z9T1k=");
 _c = VocacionalProvider;
 var _c;
 __turbopack_context__.k.register(_c, "VocacionalProvider");
@@ -1712,6 +1717,7 @@ __turbopack_context__.s([
     ()=>TestVocacionalView
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/constants/vocacional.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$Tag$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/Tag.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$Card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/Card.tsx [app-client] (ecmascript)");
@@ -1724,12 +1730,55 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
+// Semantic normalizer to match the full area names in the JSON to the AREA ids in the application
+const getAreaKey = (areaName)=>{
+    const normalized = areaName.toLowerCase();
+    if (normalized.includes("arte") || normalized.includes("creativ")) return "arte";
+    if (normalized.includes("social")) return "social";
+    if (normalized.includes("econ") || normalized.includes("admin") || normalized.includes("finan")) return "economica";
+    if (normalized.includes("tecn")) return "tecnologia";
+    if (normalized.includes("salud") || normalized.includes("ecol") || normalized.includes("biol")) return "salud";
+    return "arte"; // fallback
+};
 function TestVocacionalView() {
     _s();
     const { testAnswers, setTestAnswers, setView } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useVocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useVocacional"])();
+    const [preguntas, setPreguntas] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [currentBlock, setCurrentBlock] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(0);
+    const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const total = 80;
-    const answered = Object.keys(testAnswers).length;
+    const questionsPerBlock = 10;
+    const totalBlocks = Math.ceil(total / questionsPerBlock); // 8 blocks of 10 questions
+    // Calculate answered count based on active answers matching IDs from 1 to 80
+    const answered = Object.keys(testAnswers).filter((id)=>{
+        const numId = Number(id);
+        return numId >= 1 && numId <= 80 && testAnswers[numId];
+    }).length;
     const percent = Math.round(answered / total * 100);
+    // 1. Fetch real questions from public folder (preguntas.json)
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "TestVocacionalView.useEffect": ()=>{
+            fetch("/preguntas.json").then({
+                "TestVocacionalView.useEffect": (res)=>{
+                    if (!res.ok) {
+                        throw new Error("No se pudo cargar el archivo de preguntas");
+                    }
+                    return res.json();
+                }
+            }["TestVocacionalView.useEffect"]).then({
+                "TestVocacionalView.useEffect": (data)=>{
+                    setPreguntas(data);
+                    setLoading(false);
+                }
+            }["TestVocacionalView.useEffect"]).catch({
+                "TestVocacionalView.useEffect": (err)=>{
+                    console.error("Error loading questions JSON:", err);
+                    setLoading(false);
+                }
+            }["TestVocacionalView.useEffect"]);
+        }
+    }["TestVocacionalView.useEffect"], []);
     const handleSelectOption = (questionId, option)=>{
         setTestAnswers((prev)=>({
                 ...prev,
@@ -1737,12 +1786,63 @@ function TestVocacionalView() {
             }));
     };
     const handleSaveProgress = ()=>{
-        alert("¡Avance del test guardado correctamente!");
+        alert("¡Tu avance en el test vocacional ha sido guardado correctamente en tu navegador!");
     };
     const handleNextBlock = ()=>{
-        alert("Cargando el siguiente bloque de preguntas...");
-        setView("resultados"); // guide user to results for mockup flow
+        if (currentBlock < totalBlocks - 1) {
+            setCurrentBlock((prev)=>prev + 1);
+            // Smooth scroll to top of questions container for premium user experience
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        } else {
+            // Last block completed! Check if there are unanswered questions
+            if (answered < total) {
+                alert(`Has respondido ${answered} de ${total} preguntas. Por favor, responde las ${total - answered} preguntas faltantes en los bloques anteriores antes de finalizar.`);
+                return;
+            }
+            alert("¡Enhorabuena! Has respondido las 80 preguntas con éxito. Calculando tus resultados vocacionales...");
+            setView("resultados");
+        }
     };
+    const handlePrevBlock = ()=>{
+        if (currentBlock > 0) {
+            setCurrentBlock((prev)=>prev - 1);
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+    };
+    // Slice questions for the current block page (e.g. 0-9, 10-19, etc.)
+    const startIdx = currentBlock * questionsPerBlock;
+    const endIdx = startIdx + questionsPerBlock;
+    const currentQuestions = preguntas.slice(startIdx, endIdx);
+    if (loading) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            style: {
+                padding: "4rem 2rem",
+                textAlign: "center",
+                color: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].textMuted
+            },
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    fontSize: 16,
+                    fontWeight: 500
+                },
+                children: "Cargando preguntas del test..."
+            }, void 0, false, {
+                fileName: "[project]/src/views/TestVocacionalView.tsx",
+                lineNumber: 102,
+                columnNumber: 9
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/views/TestVocacionalView.tsx",
+            lineNumber: 101,
+            columnNumber: 7
+        }, this);
+    }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         style: {
             padding: "2rem 2.5rem",
@@ -1766,7 +1866,7 @@ function TestVocacionalView() {
                                 children: "Módulo 2"
                             }, void 0, false, {
                                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                lineNumber: 42,
+                                lineNumber: 119,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -1780,7 +1880,7 @@ function TestVocacionalView() {
                                 children: "Test Vocacional"
                             }, void 0, false, {
                                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                lineNumber: 45,
+                                lineNumber: 122,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1792,13 +1892,13 @@ function TestVocacionalView() {
                                 children: "Responde con honestidad. No hay respuestas correctas o incorrectas."
                             }, void 0, false, {
                                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                lineNumber: 56,
+                                lineNumber: 133,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/views/TestVocacionalView.tsx",
-                        lineNumber: 41,
+                        lineNumber: 118,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$Card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1818,7 +1918,7 @@ function TestVocacionalView() {
                                 children: answered
                             }, void 0, false, {
                                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                lineNumber: 67,
+                                lineNumber: 146,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1833,19 +1933,19 @@ function TestVocacionalView() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                lineNumber: 77,
+                                lineNumber: 156,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/views/TestVocacionalView.tsx",
-                        lineNumber: 60,
+                        lineNumber: 139,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                lineNumber: 33,
+                lineNumber: 110,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$Card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1867,10 +1967,10 @@ function TestVocacionalView() {
                                     fontWeight: 600,
                                     color: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].text
                                 },
-                                children: "Progreso general"
+                                children: "Progreso general del test"
                             }, void 0, false, {
                                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                lineNumber: 91,
+                                lineNumber: 171,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1885,13 +1985,13 @@ function TestVocacionalView() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                lineNumber: 94,
+                                lineNumber: 174,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/views/TestVocacionalView.tsx",
-                        lineNumber: 84,
+                        lineNumber: 164,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$ProgressBar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1900,34 +2000,64 @@ function TestVocacionalView() {
                         max: total
                     }, void 0, false, {
                         fileName: "[project]/src/views/TestVocacionalView.tsx",
-                        lineNumber: 98,
+                        lineNumber: 178,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         style: {
                             display: "flex",
-                            gap: 8,
-                            marginTop: 12,
-                            flexWrap: "wrap"
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            marginTop: 12
                         },
-                        children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AREAS"].map((a)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$Tag$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                color: a.color,
-                                light: a.light,
-                                children: a.label
-                            }, a.id, false, {
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    display: "flex",
+                                    gap: 6,
+                                    flexWrap: "wrap"
+                                },
+                                children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AREAS"].map((a)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$Tag$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                        color: a.color,
+                                        light: a.light,
+                                        children: a.label
+                                    }, a.id, false, {
+                                        fileName: "[project]/src/views/TestVocacionalView.tsx",
+                                        lineNumber: 182,
+                                        columnNumber: 15
+                                    }, this))
+                            }, void 0, false, {
                                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                lineNumber: 101,
-                                columnNumber: 13
-                            }, this))
-                    }, void 0, false, {
+                                lineNumber: 180,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                style: {
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                    color: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].textMuted
+                                },
+                                children: [
+                                    "Bloque ",
+                                    currentBlock + 1,
+                                    " de ",
+                                    totalBlocks
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/views/TestVocacionalView.tsx",
+                                lineNumber: 187,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/src/views/TestVocacionalView.tsx",
-                        lineNumber: 99,
+                        lineNumber: 179,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                lineNumber: 83,
+                lineNumber: 163,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1936,11 +2066,13 @@ function TestVocacionalView() {
                     flexDirection: "column",
                     gap: 12
                 },
-                children: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PREGUNTAS_MUESTRA"].map((q)=>{
-                    const area = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AREAS"].find((a)=>a.id === q.area);
+                children: currentQuestions.map((q)=>{
+                    const areaKey = getAreaKey(q.area);
+                    const area = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AREAS"].find((a)=>a.id === areaKey);
                     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$Card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                         style: {
-                            padding: "1.25rem 1.5rem"
+                            padding: "1.25rem 1.5rem",
+                            borderLeft: `4px solid ${area?.color || __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].border}`
                         },
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             style: {
@@ -1951,11 +2083,11 @@ function TestVocacionalView() {
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     style: {
-                                        minWidth: 30,
-                                        height: 30,
+                                        minWidth: 32,
+                                        height: 32,
                                         borderRadius: "50%",
-                                        background: area?.light,
-                                        color: area?.color,
+                                        background: area?.light || __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].accentLight,
+                                        color: area?.color || __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].accent,
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -1966,7 +2098,7 @@ function TestVocacionalView() {
                                     children: q.id
                                 }, void 0, false, {
                                     fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                    lineNumber: 114,
+                                    lineNumber: 201,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1979,12 +2111,13 @@ function TestVocacionalView() {
                                                 margin: "0 0 12px",
                                                 fontSize: 14.5,
                                                 color: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].text,
-                                                lineHeight: 1.5
+                                                lineHeight: 1.5,
+                                                fontWeight: 500
                                             },
-                                            children: q.texto
+                                            children: q.pregunta
                                         }, void 0, false, {
                                             fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                            lineNumber: 132,
+                                            lineNumber: 219,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1992,10 +2125,7 @@ function TestVocacionalView() {
                                                 display: "flex",
                                                 gap: 10
                                             },
-                                            children: [
-                                                "Me interesa",
-                                                "No me interesa"
-                                            ].map((opt)=>{
+                                            children: q.opciones.map((opt)=>{
                                                 const isActive = testAnswers[q.id] === opt;
                                                 const isInterest = opt === "Me interesa";
                                                 const ac = isInterest ? __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].teal : __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].coral;
@@ -2019,44 +2149,44 @@ function TestVocacionalView() {
                                                     ]
                                                 }, opt, true, {
                                                     fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                                    lineNumber: 149,
+                                                    lineNumber: 239,
                                                     columnNumber: 25
                                                 }, this);
                                             })
                                         }, void 0, false, {
                                             fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                            lineNumber: 142,
+                                            lineNumber: 232,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/views/TestVocacionalView.tsx",
-                                    lineNumber: 131,
+                                    lineNumber: 218,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/views/TestVocacionalView.tsx",
-                            lineNumber: 113,
+                            lineNumber: 200,
                             columnNumber: 15
                         }, this)
                     }, q.id, false, {
                         fileName: "[project]/src/views/TestVocacionalView.tsx",
-                        lineNumber: 112,
+                        lineNumber: 199,
                         columnNumber: 13
                     }, this);
                 })
             }, void 0, false, {
                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                lineNumber: 108,
+                lineNumber: 194,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 style: {
                     marginTop: 24,
                     display: "flex",
-                    justifyContent: "flex-end",
-                    gap: 12
+                    justifyContent: "space-between",
+                    alignItems: "center"
                 },
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2074,41 +2204,71 @@ function TestVocacionalView() {
                         children: "Guardar avance"
                     }, void 0, false, {
                         fileName: "[project]/src/views/TestVocacionalView.tsx",
-                        lineNumber: 187,
+                        lineNumber: 278,
                         columnNumber: 9
                     }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                        onClick: handleNextBlock,
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         style: {
-                            background: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].accent,
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 10,
-                            padding: "11px 24px",
-                            fontSize: 14,
-                            fontWeight: 600,
-                            cursor: "pointer"
+                            display: "flex",
+                            gap: 12
                         },
-                        children: "Siguiente bloque →"
-                    }, void 0, false, {
+                        children: [
+                            currentBlock > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                onClick: handlePrevBlock,
+                                style: {
+                                    background: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].surface,
+                                    color: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].accent,
+                                    border: `1.5px solid ${__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].accent}`,
+                                    borderRadius: 10,
+                                    padding: "11px 24px",
+                                    fontSize: 14,
+                                    fontWeight: 600,
+                                    cursor: "pointer"
+                                },
+                                children: "← Bloque anterior"
+                            }, void 0, false, {
+                                fileName: "[project]/src/views/TestVocacionalView.tsx",
+                                lineNumber: 296,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                onClick: handleNextBlock,
+                                style: {
+                                    background: __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$constants$2f$vocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["COLORS"].accent,
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: 10,
+                                    padding: "11px 24px",
+                                    fontSize: 14,
+                                    fontWeight: 600,
+                                    cursor: "pointer"
+                                },
+                                children: currentBlock === totalBlocks - 1 ? "Finalizar y Ver Resultados ✓" : "Siguiente bloque →"
+                            }, void 0, false, {
+                                fileName: "[project]/src/views/TestVocacionalView.tsx",
+                                lineNumber: 313,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/src/views/TestVocacionalView.tsx",
-                        lineNumber: 202,
+                        lineNumber: 294,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/views/TestVocacionalView.tsx",
-                lineNumber: 179,
+                lineNumber: 270,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/views/TestVocacionalView.tsx",
-        lineNumber: 32,
+        lineNumber: 108,
         columnNumber: 5
     }, this);
 }
-_s(TestVocacionalView, "H4MVxtQtpYU1yTb4rcUxlVBcpuY=", false, function() {
+_s(TestVocacionalView, "FhMAUKmolxBpBnYvRmyL3NIUAak=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useVocacional$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useVocacional"]
     ];

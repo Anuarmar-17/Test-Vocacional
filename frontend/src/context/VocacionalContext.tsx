@@ -68,8 +68,9 @@ const INITIAL_LIFE_PROJECT = {
 };
 
 export function VocacionalProvider({ children }: { children: ReactNode }) {
-  const [view, setView] = useState<string>("dashboard");
+  const [view, setView] = useState<string>("inicio");
   const [userName, setUserName] = useState<string>("María López");
+
   const [reflections, setReflections] = useState<Record<string, string>>(INITIAL_REFLECTIONS);
   const [testAnswers, setTestAnswers] = useState<Record<number, string>>(INITIAL_ANSWERS);
   const [lifeProject, setLifeProject] = useState<Record<string, string>>(INITIAL_LIFE_PROJECT);

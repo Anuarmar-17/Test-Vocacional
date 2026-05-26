@@ -8,6 +8,7 @@ import TopBar from "@/src/components/layout/TopBar";
 import { COLORS } from "@/src/constants/vocacional";
 
 // Views
+import InicioView from "@/src/views/InicioView";
 import DashboardView from "@/src/views/DashboardView";
 import AutoconocimientoView from "@/src/views/AutoconocimientoView";
 import TestVocacionalView from "@/src/views/TestVocacionalView";
@@ -19,6 +20,8 @@ function VocacionalAppContent() {
 
   const renderView = () => {
     switch (view) {
+      case "inicio":
+        return <InicioView />;
       case "dashboard":
         return <DashboardView />;
       case "autoconocimiento":
@@ -30,9 +33,10 @@ function VocacionalAppContent() {
       case "proyecto":
         return <ProyectoVidaView />;
       default:
-        return <DashboardView />;
+        return <InicioView />;
     }
   };
+
 
   return (
     <div

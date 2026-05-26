@@ -10,7 +10,7 @@ export default function TopBar() {
         borderBottom: `1px solid ${COLORS.sidebarBorder}`,
         display: "flex",
         alignItems: "center",
-        padding: "0 2rem",
+        padding: "0 2.5rem",
         gap: 12,
         position: "sticky",
         top: 0,
@@ -18,27 +18,6 @@ export default function TopBar() {
       }}
     >
       <div style={{ flex: 1 }} />
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          background: COLORS.bg,
-          borderRadius: 8,
-          padding: "6px 12px",
-          border: `1px solid ${COLORS.border}`,
-          cursor: "text",
-        }}
-      >
-        <i
-          className="ti ti-search"
-          style={{ fontSize: 14, color: COLORS.textLight }}
-          aria-hidden="true"
-        />
-        <span style={{ fontSize: 13, color: COLORS.textLight }}>
-          Buscar...
-        </span>
-      </div>
       <button
         style={{
           background: "transparent",
@@ -61,3 +40,4 @@ export default function TopBar() {
     </header>
   );
 }
+

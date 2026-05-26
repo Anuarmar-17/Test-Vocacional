@@ -1,0 +1,9 @@
+__pycache__
+venv
+node_modules
+.next
+.gitignore
+.env
+
+#Ignore frontend node_modules
+frontend/node_modules
