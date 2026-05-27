@@ -22,7 +22,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div
         style={{
-          padding: "1.4rem 1.5rem 1rem",
+          padding: "0.7rem 1.5rem",
           borderBottom: `1px solid ${COLORS.sidebarBorder}`,
           display: "flex",
           alignItems: "center",
@@ -31,8 +31,8 @@ export default function Sidebar() {
       >
         <div
           style={{
-            width: 34,
-            height: 34,
+            width: 30,
+            height: 30,
             borderRadius: 10,
             background: COLORS.accent,
             display: "flex",

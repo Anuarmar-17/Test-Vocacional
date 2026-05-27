@@ -5,7 +5,7 @@ export default function TopBar() {
   return (
     <header
       style={{
-        height: 52,
+        height: 53,
         background: COLORS.surface,
         borderBottom: `1px solid ${COLORS.sidebarBorder}`,
         display: "flex",
