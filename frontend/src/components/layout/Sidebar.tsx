@@ -113,6 +113,32 @@ export default function Sidebar() {
             </button>
           );
         })}
+
+        {/* Divider + Admin link */}
+        <div style={{ borderTop: `1px solid ${COLORS.sidebarBorder}`, margin: "10px 4px" }} />
+        <a
+          href="/admin"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            background: "transparent",
+            color: COLORS.textMuted,
+            textDecoration: "none",
+            padding: "9px 12px",
+            borderRadius: 10,
+            fontSize: 13.5,
+            fontWeight: 400,
+            width: "100%",
+            transition: "all .12s",
+            boxSizing: "border-box",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = COLORS.bg)}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+        >
+          <i className="ti ti-shield-lock" style={{ fontSize: 17, flexShrink: 0 }} aria-hidden="true" />
+          Panel Admin
+        </a>
       </nav>
 
       {/* User footer */}
