@@ -1,9 +1,8 @@
-__pycache__
-venv
-node_modules
-.next
-.gitignore
+__pycache__/
+venv/
+node_modules/
+.next/
 .env
 
 #Ignore frontend node_modules
-frontend/node_modules
+frontend/node_modules/
