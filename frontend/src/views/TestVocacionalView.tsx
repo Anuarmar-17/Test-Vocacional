@@ -19,8 +19,10 @@ const getAreaKey = (areaName: string): string => {
 export default function TestVocacionalView() {
   const { testAnswers, setTestAnswers, setView } = useVocacional();
   const [preguntas, setPreguntas] = useState<any[]>([]);
-  const [currentBlock, setCurrentBlock] = useState<number>(0);
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [hoverPrev, setHoverPrev] = useState<boolean>(false);
+  const [hoverNext, setHoverNext] = useState<boolean>(false);
   
   const total = 80;
   const questionsPerBlock = 10;
@@ -45,6 +47,11 @@ export default function TestVocacionalView() {
       })
       .then((data) => {
         setPreguntas(data);
+        // On mount, auto-navigate to the first unanswered question if some progress exists
+        const firstUnanswered = data.findIndex((q: any) => !testAnswers[q.id]);
+        if (firstUnanswered !== -1) {
+          setCurrentQuestionIdx(firstUnanswered);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -58,24 +65,29 @@ export default function TestVocacionalView() {
       ...prev,
       [questionId]: option,
     }));
+    
+    // Premium Auto-Advance after selecting an option
+    if (currentQuestionIdx < total - 1) {
+      setTimeout(() => {
+        setCurrentQuestionIdx((prev) => prev + 1);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 300);
+    }
   };
 
   const handleSaveProgress = () => {
     alert("¡Tu avance en el test vocacional ha sido guardado correctamente en tu navegador!");
   };
 
-  const handleNextBlock = () => {
-    if (currentBlock < totalBlocks - 1) {
-      setCurrentBlock((prev) => prev + 1);
-      // Smooth scroll to top of questions container for premium user experience
+  const handleNextQuestion = () => {
+    if (currentQuestionIdx < total - 1) {
+      setCurrentQuestionIdx((prev) => prev + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      // Last block completed! Check if there are unanswered questions
+      // Last question! Check if there are unanswered questions
       if (answered < total) {
         alert(
-          `Has respondido ${answered} de ${total} preguntas. Por favor, responde las ${
-            total - answered
-          } preguntas faltantes en los bloques anteriores antes de finalizar.`
+          `Has respondido ${answered} de ${total} preguntas. Por favor, responde todas las preguntas faltantes antes de finalizar.`
         );
         return;
       }
@@ -84,17 +96,14 @@ export default function TestVocacionalView() {
     }
   };
 
-  const handlePrevBlock = () => {
-    if (currentBlock > 0) {
-      setCurrentBlock((prev) => prev - 1);
+  const handlePrevQuestion = () => {
+    if (currentQuestionIdx > 0) {
+      setCurrentQuestionIdx((prev) => prev - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  // Slice questions for the current block page (e.g. 0-9, 10-19, etc.)
-  const startIdx = currentBlock * questionsPerBlock;
-  const endIdx = startIdx + questionsPerBlock;
-  const currentQuestions = preguntas.slice(startIdx, endIdx);
+  const currentBlock = Math.floor(currentQuestionIdx / questionsPerBlock);
 
   if (loading) {
     return (
@@ -190,88 +199,201 @@ export default function TestVocacionalView() {
         </div>
       </Card>
 
-      {/* QUESTIONS CONTAINER */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {currentQuestions.map((q: any) => {
-          const areaKey = getAreaKey(q.area);
-          const area = AREAS.find((a) => a.id === areaKey);
-          return (
-            <Card key={q.id} style={{ padding: "1.25rem 1.5rem", borderLeft: `4px solid ${area?.color || COLORS.border}` }}>
-              <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-                <span
+      {/* SINGLE QUESTION CAROUSEL ROW */}
+      {(() => {
+        const q = preguntas[currentQuestionIdx];
+        if (!q) return null;
+        const areaKey = getAreaKey(q.area);
+        const area = AREAS.find((a) => a.id === areaKey);
+        
+        // Pad the question id to 2 digits to match the filenames "01.png", "02.png", ... "80.png"
+        const imageId = String(q.id).padStart(2, "0");
+        const imagePath = `/image/${imageId}.png`;
+        const isLastQuestion = currentQuestionIdx === total - 1;
+
+        return (
+          <div style={{ position: "relative", width: "100%", padding: "1rem 0" }}>
+            {/* Left Circular Navigation Button */}
+            <button
+              disabled={currentQuestionIdx === 0}
+              onClick={handlePrevQuestion}
+              onMouseEnter={() => setHoverPrev(true)}
+              onMouseLeave={() => setHoverPrev(false)}
+              style={{
+                position: "absolute",
+                left: "-56px",
+                top: "50%",
+                transform: `translateY(-50%) ${hoverPrev && currentQuestionIdx !== 0 ? "scale(1.08)" : "scale(1)"}`,
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                background: currentQuestionIdx === 0 
+                  ? COLORS.surface 
+                  : (hoverPrev ? COLORS.accentLight : COLORS.surface),
+                color: currentQuestionIdx === 0 ? COLORS.textLight : COLORS.accent,
+                border: `1.5px solid ${currentQuestionIdx === 0 ? COLORS.border : COLORS.accent}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: currentQuestionIdx === 0 ? "not-allowed" : "pointer",
+                opacity: currentQuestionIdx === 0 ? 0.3 : 1,
+                transition: "all 0.2s ease",
+                boxShadow: "0 4px 10px rgba(0, 0, 0, 0.04)",
+                zIndex: 10,
+              }}
+              title="Pregunta anterior"
+            >
+              <i className="ti ti-chevron-left" style={{ fontSize: 18, fontWeight: 700 }} />
+            </button>
+
+            {/* Question Card (Stretched to match the width of progress card) */}
+            <Card
+              style={{
+                width: "100%",
+                padding: 0,
+                overflow: "hidden",
+                borderLeft: `6px solid ${area?.color || COLORS.border}`,
+                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.06)",
+                display: "flex",
+                flexDirection: "column",
+                borderRadius: 16,
+              }}
+            >
+              {/* 1. Large illustrative image at the top (~50% height) */}
+              <div style={{ width: "100%", height: 300, overflow: "hidden", backgroundColor: "#F0F2F9" }}>
+                <img
+                  src={imagePath}
+                  alt={`Pregunta ${q.id}`}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+
+              {/* Card Body */}
+              <div
+                style={{
+                  padding: "2.5rem 2rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 24,
+                }}
+              >
+                {/* 2. Circular indicator with the question number */}
+                <div
                   style={{
-                    minWidth: 32,
-                    height: 32,
+                    width: 48,
+                    height: 48,
                     borderRadius: "50%",
-                    background: area?.light || COLORS.accentLight,
+                    backgroundColor: area?.light || COLORS.accentLight,
                     color: area?.color || COLORS.accent,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 13,
+                    fontSize: 16,
                     fontWeight: 700,
-                    flexShrink: 0,
                   }}
                 >
                   {q.id}
-                </span>
-                <div style={{ flex: 1 }}>
-                  <p
-                    style={{
-                      margin: "0 0 12px",
-                      fontSize: 14.5,
-                      color: COLORS.text,
-                      lineHeight: 1.5,
-                      fontWeight: 500,
-                    }}
-                  >
-                    {q.pregunta}
-                  </p>
-                  
-                  {/* OPTIONS BUTTONS */}
-                  <div style={{ display: "flex", gap: 10 }}>
-                    {q.opciones.map((opt: string) => {
-                      const isActive = testAnswers[q.id] === opt;
-                      const isInterest = opt === "Me interesa";
-                      const ac = isInterest ? COLORS.teal : COLORS.coral;
-                      const al = isInterest ? COLORS.tealLight : COLORS.coralLight;
-                      return (
-                        <button
-                          key={opt}
-                          onClick={() => handleSelectOption(q.id, opt)}
-                          style={{
-                            background: isActive ? al : "#F8F9FE",
-                            color: isActive ? ac : COLORS.textMuted,
-                            border: isActive
-                              ? `1.5px solid ${ac}`
-                              : `1px solid ${COLORS.border}`,
-                            borderRadius: 10,
-                            padding: "8px 18px",
-                            fontSize: 13.5,
-                            fontWeight: isActive ? 600 : 400,
-                            cursor: "pointer",
-                            transition: "all .15s",
-                          }}
-                        >
-                          {isInterest ? "✓ " : "✗ "}
-                          {opt}
-                        </button>
-                      );
-                    })}
-                  </div>
+                </div>
+
+                {/* Question text centered and destacado with modern typography */}
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 18,
+                    fontWeight: 600,
+                    color: COLORS.text,
+                    textAlign: "center",
+                    lineHeight: 1.6,
+                    fontFamily: "'Outfit', 'Inter', sans-serif",
+                  }}
+                >
+                  {q.pregunta}
+                </p>
+
+                {/* 3. Option buttons at the bottom */}
+                <div style={{ display: "flex", gap: 12, width: "100%", marginTop: 8 }}>
+                  {q.opciones.map((opt: string) => {
+                    const isActive = testAnswers[q.id] === opt;
+                    const isInterest = opt === "Me interesa";
+                    const ac = isInterest ? COLORS.teal : COLORS.coral;
+                    const al = isInterest ? COLORS.tealLight : COLORS.coralLight;
+                    return (
+                      <button
+                        key={opt}
+                        onClick={() => handleSelectOption(q.id, opt)}
+                        style={{
+                          flex: 1,
+                          background: isActive ? al : "#F8F9FE",
+                          color: isActive ? ac : COLORS.textMuted,
+                          border: isActive ? `2px solid ${ac}` : `1px solid ${COLORS.border}`,
+                          borderRadius: 12,
+                          padding: "12px 20px",
+                          fontSize: 15,
+                          fontWeight: isActive ? 700 : 500,
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                        }}
+                      >
+                        {isInterest ? "✓ " : "✕ "}
+                        {opt}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </Card>
-          );
-        })}
-      </div>
+
+            {/* Right Circular Navigation Button */}
+            <button
+              onClick={handleNextQuestion}
+              onMouseEnter={() => setHoverNext(true)}
+              onMouseLeave={() => setHoverNext(false)}
+              style={{
+                position: "absolute",
+                right: "-56px",
+                top: "50%",
+                transform: `translateY(-50%) ${hoverNext ? "scale(1.08)" : "scale(1)"}`,
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                background: isLastQuestion
+                  ? (hoverNext ? COLORS.tealLight : COLORS.teal)
+                  : (hoverNext ? COLORS.accentLight : COLORS.accent),
+                color: isLastQuestion
+                  ? (hoverNext ? COLORS.teal : "#fff")
+                  : (hoverNext ? COLORS.accent : "#fff"),
+                border: isLastQuestion
+                  ? `1.5px solid ${COLORS.teal}`
+                  : (hoverNext ? `1.5px solid ${COLORS.accent}` : "none"),
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: isLastQuestion
+                  ? "0 4px 12px rgba(15, 155, 142, 0.24)"
+                  : "0 4px 12px rgba(79, 106, 245, 0.24)",
+                zIndex: 10,
+              }}
+              title={isLastQuestion ? "Finalizar y Ver Resultados" : "Siguiente pregunta"}
+            >
+              <i className={isLastQuestion ? "ti ti-check" : "ti ti-chevron-right"} style={{ fontSize: 18, fontWeight: 700 }} />
+            </button>
+          </div>
+        );
+      })()}
 
       {/* ACTION CONTROLS */}
       <div
         style={{
           marginTop: 24,
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-start",
           alignItems: "center",
         }}
       >
@@ -286,46 +408,11 @@ export default function TestVocacionalView() {
             fontSize: 14,
             fontWeight: 500,
             cursor: "pointer",
+            transition: "all 0.2s ease",
           }}
         >
           Guardar avance
         </button>
-        
-        <div style={{ display: "flex", gap: 12 }}>
-          {currentBlock > 0 && (
-            <button
-              onClick={handlePrevBlock}
-              style={{
-                background: COLORS.surface,
-                color: COLORS.accent,
-                border: `1.5px solid ${COLORS.accent}`,
-                borderRadius: 10,
-                padding: "11px 24px",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              ← Bloque anterior
-            </button>
-          )}
-          
-          <button
-            onClick={handleNextBlock}
-            style={{
-              background: COLORS.accent,
-              color: "#fff",
-              border: "none",
-              borderRadius: 10,
-              padding: "11px 24px",
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            {currentBlock === totalBlocks - 1 ? "Finalizar y Ver Resultados ✓" : "Siguiente bloque →"}
-          </button>
-        </div>
       </div>
     </div>
   );
