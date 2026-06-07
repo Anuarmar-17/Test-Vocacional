@@ -4,6 +4,13 @@ import Tag from "@/src/components/ui/Tag";
 import Card from "@/src/components/ui/Card";
 import ProgressBar from "@/src/components/ui/ProgressBar";
 import { useVocacional } from "@/src/hooks/useVocacional";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function ResultadosView() {
   const { dynamicAreas } = useVocacional();
@@ -151,7 +158,7 @@ export default function ResultadosView() {
         })}
       </div>
 
-      {/* All areas bar chart */}
+      {/* All areas radial bar chart */}
       <Card style={{ marginBottom: "1.5rem" }}>
         <p
           style={{
@@ -165,49 +172,78 @@ export default function ResultadosView() {
         >
           Puntaje por área
         </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {sorted.map((area, idx) => (
-            <div key={area.id}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: 6,
-                }}
-              >
-                <span
+        <ResponsiveContainer width="100%" height={350}>
+          <PieChart>
+            <Pie
+              data={sorted.map((a) => ({
+                name: a.label,
+                score: a.score,
+              }))}
+              dataKey="score"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              innerRadius={80}
+              outerRadius={140}
+            >
+              {sorted.map((area) => (
+                <Cell key={area.id} fill={area.color} />
+              ))}
+            </Pie>
+            <Legend
+              verticalAlign="bottom"
+              content={({ payload }) => (
+                <div
                   style={{
-                    fontSize: 13.5,
-                    fontWeight: idx < 2 ? 600 : 400,
-                    color: idx < 2 ? COLORS.text : COLORS.textMuted,
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    gap: "12px 20px",
+                    marginTop: 16,
                   }}
                 >
-                  {area.label}
-                </span>
-                <span
-                  style={{
-                    fontSize: 13.5,
-                    fontWeight: 600,
-                    color: idx < 2 ? COLORS.text : COLORS.textMuted,
-                  }}
-                >
-                  {area.score} pts
-                </span>
-              </div>
-              <ProgressBar
-                value={area.score}
-                color={
-                  idx === 0
-                    ? "#4F6AF5"
-                    : idx === 1
-                    ? "#9CA3AF"
-                    : "#D1D5DB"
-                }
-                max={80}
-              />
-            </div>
-          ))}
-        </div>
+                  {payload?.map((entry: any) => {
+                    const area = sorted.find(
+                      (a) => a.label === entry.value
+                    );
+                    return (
+                      <div
+                        key={entry.value}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          fontSize: 13,
+                          color: COLORS.textMuted,
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: "50%",
+                            background: entry.color,
+                            display: "inline-block",
+                          }}
+                        />
+                        {entry.value}
+                        <span
+                          style={{
+                            fontWeight: 600,
+                            color: COLORS.text,
+                            marginLeft: 2,
+                          }}
+                        >
+                          {area?.score} pts
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            />
+          </PieChart>
+        </ResponsiveContainer>
       </Card>
 
       {/* Career recommendations */}
