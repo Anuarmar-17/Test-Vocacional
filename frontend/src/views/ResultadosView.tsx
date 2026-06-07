@@ -64,7 +64,7 @@ export default function ResultadosView() {
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gap: 16,
+          gap: 15,
           marginBottom: "1.5rem",
         }}
       >
@@ -115,7 +115,7 @@ export default function ResultadosView() {
                 <span
                   style={{
                     fontSize: 11.5,
-                    fontWeight: 600,
+                    fontWeight: 700,
                     padding: "4px 10px",
                     borderRadius: 8,
                     background: rc.badge.bg,
@@ -128,8 +128,8 @@ export default function ResultadosView() {
               <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                 <span
                   style={{
-                    fontSize: 36,
-                    fontWeight: 800,
+                    fontSize: 33,
+                    fontWeight: 600,
                     color: COLORS.text,
                   }}
                 >

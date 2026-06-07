@@ -169,7 +169,7 @@ export default function TestVocacionalView() {
       </div>
 
       {/* PROGRESS AND INFO CARD */}
-      <Card style={{ marginBottom: 20, padding: "1rem 1.5rem" }}>
+      <Card style={{ marginBottom: 5, padding: "1rem 1.5rem" }}>
         <div
           style={{
             display: "flex",
@@ -185,8 +185,8 @@ export default function TestVocacionalView() {
           </span>
         </div>
         <ProgressBar value={answered} color={COLORS.accent} max={total} />
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
+          <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
             {AREAS.map((a) => (
               <Tag key={a.id} color={a.color} light={a.light}>
                 {a.label}
@@ -271,11 +271,11 @@ export default function TestVocacionalView() {
               {/* Card Body */}
               <div
                 style={{
-                  padding: "2.5rem 2rem",
+                  padding: "2rem 2rem",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 24,
+                  gap: 15,
                 }}
               >
                 {/* 2. Circular indicator with the question number */}
