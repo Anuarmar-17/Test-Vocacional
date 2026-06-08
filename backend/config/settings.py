@@ -31,12 +31,8 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # Local apps
-    # Note: We will add these once the apps are fully created in the respective phases
-    'users.apps.UsersConfig',
-    'vocational_tests.apps.VocationalTestsConfig',
-    'results.apps.ResultsConfig',
-    'professions.apps.ProfessionsConfig',
-    'life_project.apps.LifeProjectConfig',
+    'accounts.apps.AccountsConfig',
+    'assessments.apps.AssessmentsConfig',
 ]
 
 MIDDLEWARE = [
@@ -84,7 +80,7 @@ DATABASES = {
 }
 
 # Custom User Model
-AUTH_USER_MODEL = 'users.User' # Enabled for Phase 2
+AUTH_USER_MODEL = 'accounts.User'
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -117,6 +113,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_PAGINATION_CLASS': 'core.pagination.StandardResultsSetPagination',
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
     'PAGE_SIZE': 10,
     'EXCEPTION_HANDLER': 'core.exceptions.custom_exception_handler'
 }

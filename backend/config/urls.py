@@ -5,12 +5,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # App URLs will be added here as we create them
-    path('api/v1/users/', include('users.urls')),
-    path('api/v1/vocational-tests/', include('vocational_tests.urls')),
-    path('api/v1/results/', include('results.urls')),
-    path('api/v1/professions/', include('professions.urls')),
-    path('api/v1/life-project/', include('life_project.urls')),
+    path('api/v1/auth/', include('accounts.urls')),
+    path('api/v1/', include('assessments.urls')),
 ]
 
 if settings.DEBUG:

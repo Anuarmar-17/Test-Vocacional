@@ -183,7 +183,7 @@ export default function ResultadosView() {
               nameKey="name"
               cx="50%"
               cy="50%"
-              innerRadius={80}
+              innerRadius={65}
               outerRadius={140}
             >
               {sorted.map((area) => (
