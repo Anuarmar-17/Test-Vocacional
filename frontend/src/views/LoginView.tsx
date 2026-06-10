@@ -162,7 +162,7 @@ const LoginView = () => {
 
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500">
-              ¿No tienes cuenta? <a href="#" className="text-[#7C5CFC] font-medium hover:underline">Regístrate</a>
+              ¿No tienes cuenta? <a href="/register" className="text-[#7C5CFC] font-medium hover:underline">Regístrate</a>
             </p>
           </div>
         </div>
