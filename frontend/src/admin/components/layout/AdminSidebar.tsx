@@ -4,9 +4,11 @@ import React from "react";
 import { COLORS } from "@/src/constants/vocacional";
 import { ADMIN_NAV_LINKS } from "@/src/admin/constants/adminData";
 import { useAdmin, AdminView } from "@/src/admin/context/AdminContext";
+import { useAuth } from "@/src/context/AuthContext";
 
 export default function AdminSidebar() {
   const { adminView, setAdminView } = useAdmin();
+  const { logout: logoutAdmin } = useAuth();
 
   return (
     <aside
@@ -150,92 +152,85 @@ export default function AdminSidebar() {
           );
         })}
 
-        {/* Divider */}
-        <div style={{ borderTop: `1px solid ${COLORS.sidebarBorder}`, margin: "10px 4px" }} />
-
-        {/* Back to student view hint */}
-        <p
-          style={{
-            fontSize: 10.5,
-            fontWeight: 600,
-            color: COLORS.textLight,
-            textTransform: "uppercase",
-            letterSpacing: "0.6px",
-            margin: "0 0 6px 8px",
-          }}
-        >
-          Navegación
-        </p>
-        <a
-          href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            background: "transparent",
-            color: COLORS.textMuted,
-            textDecoration: "none",
-            padding: "9px 12px",
-            borderRadius: 10,
-            fontSize: 13.5,
-            fontWeight: 400,
-            width: "100%",
-            transition: "all .12s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = COLORS.bg)}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-        >
-          <i className="ti ti-arrow-left" style={{ fontSize: 17 }} aria-hidden="true" />
-          Vista Estudiante
-        </a>
+        {/* Spacer */}
       </nav>
 
       {/* Admin footer */}
       <div
         style={{
-          padding: "1rem 1.25rem",
+          padding: "0.75rem 1.25rem",
           borderTop: `1px solid ${COLORS.sidebarBorder}`,
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
           flexShrink: 0,
         }}
       >
-        <div
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: "50%",
-            background: COLORS.accent,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 12,
-            fontWeight: 700,
-            color: "#fff",
-            flexShrink: 0,
-          }}
-        >
-          AD
-        </div>
-        <div style={{ overflow: "hidden" }}>
-          <p
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <div
             style={{
-              margin: 0,
-              fontSize: 13,
-              fontWeight: 600,
-              color: COLORS.text,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              background: COLORS.accent,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 12,
+              fontWeight: 700,
+              color: "#fff",
+              flexShrink: 0,
             }}
           >
-            Administrador
-          </p>
-          <p style={{ margin: 0, fontSize: 11.5, color: COLORS.accent }}>
-            Panel Admin
-          </p>
+            AD
+          </div>
+          <div style={{ overflow: "hidden" }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 13,
+                fontWeight: 600,
+                color: COLORS.text,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              Administrador
+            </p>
+            <p style={{ margin: 0, fontSize: 11.5, color: COLORS.accent }}>
+              Panel Admin
+            </p>
+          </div>
         </div>
+        <button
+          onClick={logoutAdmin}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: "transparent",
+            color: COLORS.textMuted,
+            border: `1px solid ${COLORS.sidebarBorder}`,
+            cursor: "pointer",
+            padding: "7px 12px",
+            borderRadius: 8,
+            fontSize: 12.5,
+            fontWeight: 500,
+            width: "100%",
+            transition: "all .12s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#fee2e2";
+            e.currentTarget.style.color = "#dc2626";
+            e.currentTarget.style.borderColor = "#fecaca";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = COLORS.textMuted;
+            e.currentTarget.style.borderColor = COLORS.sidebarBorder;
+          }}
+        >
+          <i className="ti ti-logout" style={{ fontSize: 15 }} aria-hidden="true" />
+          Cerrar Sesión
+        </button>
       </div>
     </aside>
   );

@@ -1,9 +1,48 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/src/context/AuthContext';
 
 const LoginView = () => {
+  const router = useRouter();
+  const { login } = useAuth();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email.trim() || !password.trim()) {
+      setError('Por favor completa todos los campos.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const user = await login(email.trim(), password.trim());
+
+      // Redirect based on role
+      if (user.is_admin) {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Error al iniciar sesión. Intenta de nuevo.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex w-full font-sans bg-white">
@@ -94,22 +133,40 @@ const LoginView = () => {
             <p className="text-gray-500 text-sm">Por favor ingresa tus datos para iniciar sesión</p>
           </div>
 
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+          {/* Error Message */}
+          {error && (
+            <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2 animate-[fadeIn_0.2s_ease-out]">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
               <input
+                id="login-email"
                 type="email"
                 placeholder="Correo electrónico"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(''); }}
                 className="w-full text-gray-500 px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm"
                 required
+                disabled={isLoading}
               />
             </div>
 
             <div className="relative">
               <input
+                id="login-password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Contraseña"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setError(''); }}
                 className="w-full text-gray-500 px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm pr-12"
                 required
+                disabled={isLoading}
               />
               <button
                 type="button"
@@ -147,10 +204,22 @@ const LoginView = () => {
             </div>
 
             <button
+              id="login-submit"
               type="submit"
-              className="w-full bg-[#7C5CFC] hover:bg-[#6a4ee0] text-white font-medium py-3.5 rounded-xl transition-colors shadow-sm shadow-[#7C5CFC]/30 active:scale-[0.98]"
+              disabled={isLoading}
+              className="w-full bg-[#7C5CFC] hover:bg-[#6a4ee0] disabled:bg-[#7C5CFC]/60 disabled:cursor-not-allowed text-white font-medium py-3.5 rounded-xl transition-colors shadow-sm shadow-[#7C5CFC]/30 active:scale-[0.98] flex items-center justify-center gap-2"
             >
-              Iniciar Sesión
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Ingresando...</span>
+                </>
+              ) : (
+                'Iniciar Sesión'
+              )}
             </button>
           </form>
 

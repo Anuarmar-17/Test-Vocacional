@@ -42,7 +42,7 @@ El sistema busca digitalizar y optimizar los procesos de orientación vocacional
 
 ## Base de Datos
 
-- PostgreSQL
+- MySQL
 
 ---
 
@@ -53,7 +53,7 @@ Frontend (Next.js)
         ↓
 API REST (Django REST Framework)
         ↓
-PostgreSQL Database
+MySQL Database
 ```
 
 ---
@@ -203,7 +203,7 @@ Caso de uso 09 - 12: (Consultar información educativa, Gestionar preguntas, Ges
 
 ## Base de Datos
 
-- PostgreSQL Cloud
+- Aiven (MySQL)
 
 ---
 
@@ -222,7 +222,7 @@ Caso de uso 09 - 12: (Consultar información educativa, Gestionar preguntas, Ges
 
 ## Base de Datos
 
-- PostgreSQL 15+
+- MySQL 8+
 
 ---
 
@@ -320,7 +320,7 @@ DEBUG=True
 SECRET_KEY=your_secret_key
 
 DB_NAME=database_name
-DB_USER=postgres
+DB_USER=username
 DB_PASSWORD=password
 DB_HOST=localhost
 DB_PORT=5432

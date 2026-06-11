@@ -1,9 +1,13 @@
+"use client";
+
 import React from "react";
 import { COLORS, NAV_LINKS } from "@/src/constants/vocacional";
 import { useVocacional } from "@/src/hooks/useVocacional";
+import { useAuth } from "@/src/context/AuthContext";
 
 export default function Sidebar() {
   const { view, setView, userName } = useVocacional();
+  const { logout: logoutStudent } = useAuth();
 
   return (
     <aside
@@ -114,78 +118,84 @@ export default function Sidebar() {
           );
         })}
 
-        {/* Divider + Admin link */}
-        <div style={{ borderTop: `1px solid ${COLORS.sidebarBorder}`, margin: "10px 4px" }} />
-        <a
-          href="/admin"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            background: "transparent",
-            color: COLORS.textMuted,
-            textDecoration: "none",
-            padding: "9px 12px",
-            borderRadius: 10,
-            fontSize: 13.5,
-            fontWeight: 400,
-            width: "100%",
-            transition: "all .12s",
-            boxSizing: "border-box",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = COLORS.bg)}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-        >
-          <i className="ti ti-shield-lock" style={{ fontSize: 17, flexShrink: 0 }} aria-hidden="true" />
-          Panel Admin
-        </a>
+
       </nav>
 
       {/* User footer */}
       <div
         style={{
-          padding: "1rem 1.25rem",
+          padding: "0.75rem 1.25rem",
           borderTop: `1px solid ${COLORS.sidebarBorder}`,
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
         }}
       >
-        <div
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: "50%",
-            background: COLORS.accentMid,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 12,
-            fontWeight: 700,
-            color: COLORS.accent,
-            flexShrink: 0,
-          }}
-        >
-          {userName ? userName.slice(0, 2).toUpperCase() : "US"}
-        </div>
-        <div style={{ overflow: "hidden" }}>
-          <p
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <div
             style={{
-              margin: 0,
-              fontSize: 13,
-              fontWeight: 600,
-              color: COLORS.text,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              background: COLORS.accentMid,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 12,
+              fontWeight: 700,
+              color: COLORS.accent,
+              flexShrink: 0,
             }}
           >
-            {userName}
-          </p>
-          <p style={{ margin: 0, fontSize: 11.5, color: COLORS.textMuted }}>
-            Estudiante
-          </p>
+            {userName ? userName.slice(0, 2).toUpperCase() : "US"}
+          </div>
+          <div style={{ overflow: "hidden" }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 13,
+                fontWeight: 600,
+                color: COLORS.text,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {userName}
+            </p>
+            <p style={{ margin: 0, fontSize: 11.5, color: COLORS.textMuted }}>
+              Estudiante
+            </p>
+          </div>
         </div>
+        <button
+          onClick={logoutStudent}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: "transparent",
+            color: COLORS.textMuted,
+            border: `1px solid ${COLORS.sidebarBorder}`,
+            cursor: "pointer",
+            padding: "7px 12px",
+            borderRadius: 8,
+            fontSize: 12.5,
+            fontWeight: 500,
+            width: "100%",
+            transition: "all .12s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#fee2e2";
+            e.currentTarget.style.color = "#dc2626";
+            e.currentTarget.style.borderColor = "#fecaca";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = COLORS.textMuted;
+            e.currentTarget.style.borderColor = COLORS.sidebarBorder;
+          }}
+        >
+          <i className="ti ti-logout" style={{ fontSize: 15 }} aria-hidden="true" />
+          Cerrar Sesión
+        </button>
       </div>
     </aside>
   );

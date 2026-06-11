@@ -67,9 +67,9 @@ const INITIAL_LIFE_PROJECT = {
   corto: "Completar con éxito este test vocacional y elegir mi carrera universitaria ideal.",
 };
 
-export function VocacionalProvider({ children }: { children: ReactNode }) {
+export function VocacionalProvider({ children, initialUserName }: { children: ReactNode; initialUserName?: string }) {
   const [view, setView] = useState<string>("inicio");
-  const [userName, setUserName] = useState<string>("María López");
+  const [userName, setUserName] = useState<string>(initialUserName || "Estudiante");
 
   const [reflections, setReflections] = useState<Record<string, string>>(INITIAL_REFLECTIONS);
   const [testAnswers, setTestAnswers] = useState<Record<number, string>>(INITIAL_ANSWERS);
