@@ -1,60 +1,72 @@
-import uuid
 from django.db import models
+from accounts.models import Usuario
 
+class Area(models.Model):
+    nombre = models.CharField(max_length=100)
+    nombre_corto = models.CharField(max_length=20, unique=True)
+    color = models.CharField(max_length=7)
+    color_light = models.CharField(max_length=7, null=True, blank=True)
+    puntaje_base = models.IntegerField(default=0)
+    maximo_puntos = models.IntegerField(default=16)
 
-class Student(models.Model):
+    class Meta:
+        managed = False
+        db_table = 'areas'
+
+class Profesion(models.Model):
+    area = models.ForeignKey(Area, on_delete=models.DO_NOTHING, db_column='area_id')
     nombre = models.CharField(max_length=150)
-    correo = models.EmailField(blank=True, null=True)
-    grado = models.CharField(max_length=20, help_text="10° u 11°")
-    curso = models.CharField(max_length=50, blank=True, null=True)
-    edad = models.IntegerField(blank=True, null=True)
-    session_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    descripcion = models.TextField(null=True, blank=True)
+    universidades = models.TextField(null=True, blank=True)
+    duracion = models.CharField(max_length=50, null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.nombre} - {self.grado}"
+    class Meta:
+        managed = False
+        db_table = 'profesiones'
 
+class Resultado(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='usuario_id')
+    estado = models.CharField(max_length=20, default='INICIADO')
+    total_preguntas = models.IntegerField(default=80)
+    preguntas_respondidas = models.IntegerField(default=0)
+    progreso_porcentaje = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    datos = models.JSONField(default=dict)
+    area_principal = models.ForeignKey(Area, on_delete=models.DO_NOTHING, db_column='area_principal_id', null=True, blank=True, related_name='resultados_principal')
+    area_secundaria = models.ForeignKey(Area, on_delete=models.DO_NOTHING, db_column='area_secundaria_id', null=True, blank=True, related_name='resultados_secundaria')
+    puntaje_maximo = models.IntegerField(default=0)
+    fecha_realizacion = models.DateTimeField(auto_now_add=True)
+    fecha_completado = models.DateTimeField(null=True, blank=True)
 
-class TestResult(models.Model):
-    ESTADO_CHOICES = [
-        ('INICIADO', 'Iniciado'),
-        ('COMPLETADO', 'Completado'),
-    ]
+    class Meta:
+        managed = False
+        db_table = 'resultados'
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='results')
-    respuestas = models.JSONField(default=list, help_text="Lista de respuestas del estudiante")
-    resultados_por_area = models.JSONField(default=dict, help_text="Estructura similar a resultados_acumulados.json")
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='COMPLETADO')
-    created_at = models.DateTimeField(auto_now_add=True)
+class ReflexionAutoconocimiento(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, db_column='usuario_id')
+    orden = models.IntegerField()
+    pregunta_texto = models.CharField(max_length=255)
+    respuesta = models.TextField(null=True, blank=True)
+    fecha_guardado = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Resultado de {self.student.nombre} ({self.created_at.strftime('%Y-%m-%d')})"
+    class Meta:
+        managed = False
+        db_table = 'reflexiones_autoconocimiento'
+        unique_together = (('usuario', 'orden'),)
 
+class ProyectoVida(models.Model):
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, db_column='usuario_id')
+    vision = models.TextField(null=True, blank=True)
+    meta_corto_plazo = models.TextField(null=True, blank=True)
+    meta_mediano_plazo = models.TextField(null=True, blank=True)
+    meta_largo_plazo = models.TextField(null=True, blank=True)
+    tiene_claro_carrera = models.BooleanField(null=True, blank=True)
+    conoce_requisitos = models.BooleanField(null=True, blank=True)
+    investigo_financiamiento = models.BooleanField(null=True, blank=True)
+    tiene_apoyo_familiar = models.BooleanField(null=True, blank=True)
+    compromisos = models.TextField(null=True, blank=True)
+    estado = models.CharField(max_length=20, default='BORRADOR')
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
 
-class LifeProject(models.Model):
-    student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='life_project')
-    vision = models.TextField(blank=True, null=True, help_text="¿Cómo te ves en el futuro?")
-    mission = models.TextField(blank=True, null=True, help_text="¿Qué vas a hacer para lograrlo?")
-    target_profession = models.CharField(max_length=200, blank=True, null=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Proyecto de Vida de {self.student.nombre}"
-
-
-class Goal(models.Model):
-    TERM_CHOICES = [
-        ('SHORT', 'Corto Plazo'),
-        ('MEDIUM', 'Mediano Plazo'),
-        ('LONG', 'Largo Plazo'),
-    ]
-
-    project = models.ForeignKey(LifeProject, on_delete=models.CASCADE, related_name='goals')
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True)
-    term = models.CharField(max_length=10, choices=TERM_CHOICES, default='SHORT')
-    is_completed = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.title} ({self.get_term_display()})"
+    class Meta:
+        managed = False
+        db_table = 'proyecto_vida'

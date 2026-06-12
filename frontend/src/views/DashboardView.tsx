@@ -11,13 +11,16 @@ export default function DashboardView() {
     answeredCount,
     reflectionsCount,
     profileCompletion,
+    lifeProject,
   } = useVocacional();
 
   // Dynamically count completed modules
-  const isAutoconocimientoDone = reflectionsCount >= 5;
+  const isAutoconocimientoDone = reflectionsCount >= 9;
   const isTestDone = answeredCount === 80;
   const isResultadosDone = isTestDone; // unlocked when test is done
-  const isProyectoDone = reflectionsCount > 0 && answeredCount === 80; // simplified mock completion check
+  
+  const lifeProjectKeys = ["vision", "corto", "mediano", "largo", "compromisos", "acad-0", "acad-1", "acad-2", "acad-3"];
+  const isProyectoDone = lifeProjectKeys.every((k) => lifeProject && lifeProject[k] && lifeProject[k].trim() !== "");
 
   let completedModules = 0;
   if (isAutoconocimientoDone) completedModules += 1;
@@ -25,8 +28,7 @@ export default function DashboardView() {
   if (isResultadosDone) completedModules += 1;
   if (isProyectoDone) completedModules += 1;
   
-  // Enforce at least 1 module completed to match initial visual mock exactly
-  const displayCompletedModules = Math.max(1, completedModules);
+  const displayCompletedModules = completedModules;
 
   const steps = [
     {
@@ -321,7 +323,7 @@ export default function DashboardView() {
                   color: COLORS.textMuted,
                 }}
               >
-                Completado · {reflectionsCount} reflexiones guardadas
+                {isAutoconocimientoDone ? `Completado · ${reflectionsCount} reflexiones guardadas` : `Incompleto · ${reflectionsCount} guardadas`}
               </p>
             </div>
           </div>

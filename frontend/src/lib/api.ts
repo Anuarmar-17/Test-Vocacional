@@ -172,3 +172,80 @@ export function logoutUser(): void {
   clearTokens();
   clearStoredUser();
 }
+
+// ─── Assessment Endpoints ──────────────────────────────────────────────────
+
+export async function getReflections(): Promise<any> {
+  const token = getAccessToken();
+  if (!token) return [];
+  const res = await fetch(`${API_URL}/assessments/reflections/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.data;
+}
+
+export async function saveReflections(data: Record<string, string>): Promise<boolean> {
+  const token = getAccessToken();
+  if (!token) return false;
+  const res = await fetch(`${API_URL}/assessments/reflections/`, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}` 
+    },
+    body: JSON.stringify(data)
+  });
+  return res.ok;
+}
+
+export async function getTestResults(): Promise<any> {
+  const token = getAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${API_URL}/assessments/results/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.data;
+}
+
+export async function saveTestResults(payload: any): Promise<boolean> {
+  const token = getAccessToken();
+  if (!token) return false;
+  const res = await fetch(`${API_URL}/assessments/results/`, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}` 
+    },
+    body: JSON.stringify(payload)
+  });
+  return res.ok;
+}
+
+export async function getLifeProject(): Promise<any> {
+  const token = getAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${API_URL}/assessments/life-project/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.data;
+}
+
+export async function saveLifeProject(projectData: any): Promise<boolean> {
+  const token = getAccessToken();
+  if (!token) return false;
+  const res = await fetch(`${API_URL}/assessments/life-project/`, {
+    method: 'PUT',
+    headers: { 
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}` 
+    },
+    body: JSON.stringify(projectData)
+  });
+  return res.ok;
+}

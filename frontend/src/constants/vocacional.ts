@@ -28,11 +28,11 @@ export interface Area {
 }
 
 export const AREAS: Area[] = [
-  { id: "arte",      label: "Arte y Creatividad",          color: "#C0533A", light: "#FAF0ED", score: 72 },
-  { id: "social",    label: "Ciencias Sociales",           color: "#3A5BD9", light: "#EEF2FD", score: 58 },
-  { id: "economica", label: "Económica / Administrativa",  color: "#B06010", light: "#FDF5E8", score: 44 },
-  { id: "tecnologia",label: "Ciencia y Tecnología",        color: "#0A7A70", light: "#E5F5F3", score: 61 },
-  { id: "salud",     label: "Ciencias de la Salud",        color: "#5C2FA8", light: "#F0EAFB", score: 35 },
+  { id: "arte",      label: "Arte y Creatividad",          color: "#C0533A", light: "#FAF0ED", score: 0 },
+  { id: "social",    label: "Ciencias Sociales",           color: "#3A5BD9", light: "#EEF2FD", score: 0 },
+  { id: "economica", label: "Económica / Administrativa",  color: "#B06010", light: "#FDF5E8", score: 0 },
+  { id: "tecnologia",label: "Ciencia y Tecnología",        color: "#0A7A70", light: "#E5F5F3", score: 0 },
+  { id: "salud",     label: "Ciencias de la Salud",        color: "#5C2FA8", light: "#F0EAFB", score: 0 },
 ];
 
 export const PROFESIONES: Record<string, string[]> = {

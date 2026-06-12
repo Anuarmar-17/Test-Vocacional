@@ -17,12 +17,13 @@ const getAreaKey = (areaName: string): string => {
 };
 
 export default function TestVocacionalView() {
-  const { testAnswers, setTestAnswers, setView } = useVocacional();
+  const { testAnswers, setTestAnswers, saveTestAnswers, setView, isLoadingContext } = useVocacional();
   const [preguntas, setPreguntas] = useState<any[]>([]);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [hoverPrev, setHoverPrev] = useState<boolean>(false);
   const [hoverNext, setHoverNext] = useState<boolean>(false);
+  const [hasAutoNavigated, setHasAutoNavigated] = useState<boolean>(false);
   
   const total = 80;
   const questionsPerBlock = 10;
@@ -47,11 +48,6 @@ export default function TestVocacionalView() {
       })
       .then((data) => {
         setPreguntas(data);
-        // On mount, auto-navigate to the first unanswered question if some progress exists
-        const firstUnanswered = data.findIndex((q: any) => !testAnswers[q.id]);
-        if (firstUnanswered !== -1) {
-          setCurrentQuestionIdx(firstUnanswered);
-        }
         setLoading(false);
       })
       .catch((err) => {
@@ -60,11 +56,23 @@ export default function TestVocacionalView() {
       });
   }, []);
 
+  // 2. Auto-navigate to first unanswered question ONCE when data is ready
+  useEffect(() => {
+    if (!hasAutoNavigated && !isLoadingContext && !loading && preguntas.length > 0) {
+      const firstUnanswered = preguntas.findIndex((q: any) => !testAnswers[q.id]);
+      if (firstUnanswered !== -1) {
+        setCurrentQuestionIdx(firstUnanswered);
+      }
+      setHasAutoNavigated(true);
+    }
+  }, [hasAutoNavigated, isLoadingContext, loading, preguntas, testAnswers]);
+
   const handleSelectOption = (questionId: number, option: string) => {
-    setTestAnswers((prev) => ({
-      ...prev,
+    const newAnswers = {
+      ...testAnswers,
       [questionId]: option,
-    }));
+    };
+    setTestAnswers(newAnswers);
     
     // Premium Auto-Advance after selecting an option
     if (currentQuestionIdx < total - 1) {
@@ -76,7 +84,8 @@ export default function TestVocacionalView() {
   };
 
   const handleSaveProgress = () => {
-    alert("¡Tu avance en el test vocacional ha sido guardado correctamente en tu navegador!");
+    saveTestAnswers(testAnswers);
+    alert("¡Tu avance en el test vocacional ha sido guardado en la base de datos!");
   };
 
   const handleNextQuestion = () => {
@@ -105,7 +114,7 @@ export default function TestVocacionalView() {
 
   const currentBlock = Math.floor(currentQuestionIdx / questionsPerBlock);
 
-  if (loading) {
+  if (loading || isLoadingContext || !hasAutoNavigated) {
     return (
       <div style={{ padding: "4rem 2rem", textAlign: "center", color: COLORS.textMuted }}>
         <div style={{ fontSize: 16, fontWeight: 500 }}>Cargando preguntas del test...</div>

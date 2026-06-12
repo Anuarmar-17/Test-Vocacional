@@ -13,9 +13,51 @@ import {
 } from "recharts";
 
 export default function ResultadosView() {
-  const { dynamicAreas } = useVocacional();
+  const { dynamicAreas, answeredCount, resultadosAcumulados } = useVocacional();
   
-  // Sort dynamic areas dynamically based on calculated scores
+  if (answeredCount < 80) {
+    return (
+      <div style={{ padding: "2rem 2.5rem", maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ marginBottom: "1.5rem", textAlign: "left" }}>
+          <Tag color="#5060B8" light="#EAECF8">
+            Módulo 3
+          </Tag>
+          <h2
+            style={{
+              fontSize: 24,
+              fontWeight: 700,
+              margin: "8px 0 4px",
+              color: COLORS.text,
+              letterSpacing: "-.5px",
+            }}
+          >
+            Tus Resultados
+          </h2>
+          <p style={{ margin: 0, color: COLORS.textMuted, fontSize: 14 }}>
+            Aún no hay resultados porque el test no ha sido completado.
+          </p>
+        </div>
+        <Card style={{ marginTop: "2rem", padding: "4rem", backgroundColor: "#F9FAFf", border: `1px dashed ${COLORS.border}` }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 15 }}>
+            <div style={{ width: 64, height: 64, borderRadius: '50%', backgroundColor: COLORS.surface, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <i className="ti ti-chart-bar" style={{ fontSize: 28, color: COLORS.textLight }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: 18, color: COLORS.text, fontWeight: 600, margin: '0 0 6px' }}>
+                {answeredCount} / 80 preguntas respondidas
+              </h3>
+              <p style={{ color: COLORS.textMuted, fontSize: 14, maxWidth: 400, margin: '0 auto' }}>
+                Responde todas las preguntas en el Módulo 2 para calcular tus porcentajes y descubrir tus carreras compatibles.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Sort dynamic areas by score (puntos acumulados from "Me interesa" answers)
+  const maxPerArea = 16;
   const sorted = [...dynamicAreas].sort((a, b) => b.score - a.score);
   const top = sorted[0];
   const second = sorted[1];
@@ -66,7 +108,7 @@ export default function ResultadosView() {
         </p>
       </div>
 
-      {/* Top 2 cards — calm, no emoji */}
+      {/* Top 2 cards */}
       <div
         style={{
           display: "grid",
@@ -77,6 +119,7 @@ export default function ResultadosView() {
       >
         {[top, second].map((area, idx) => {
           const rc = RANK_COLORS[idx];
+          const pct = maxPerArea > 0 ? Math.round((area.score / maxPerArea) * 100) : 0;
           return (
             <div
               key={area.id}
@@ -143,14 +186,17 @@ export default function ResultadosView() {
                   {area.score}
                 </span>
                 <span style={{ fontSize: 13, color: COLORS.textMuted }}>
-                  / 80 pts
+                  / {maxPerArea} pts
+                </span>
+                <span style={{ fontSize: 13, color: COLORS.accent, fontWeight: 600, marginLeft: 8 }}>
+                  ({pct}%)
                 </span>
               </div>
               <div style={{ marginTop: 12 }}>
                 <ProgressBar
                   value={area.score}
                   color={idx === 0 ? "#4F6AF5" : "#9CA3AF"}
-                  max={80}
+                  max={maxPerArea}
                 />
               </div>
             </div>
@@ -158,7 +204,7 @@ export default function ResultadosView() {
         })}
       </div>
 
-      {/* All areas radial bar chart */}
+      {/* All areas pie chart */}
       <Card style={{ marginBottom: "1.5rem" }}>
         <p
           style={{
@@ -234,7 +280,7 @@ export default function ResultadosView() {
                             marginLeft: 2,
                           }}
                         >
-                          {area?.score} pts
+                          {area?.score}/{maxPerArea} pts
                         </span>
                       </div>
                     );
