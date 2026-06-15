@@ -1,22 +1,69 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { COLORS } from "@/src/constants/vocacional";
 import Card from "@/src/components/ui/Card";
 import StatCard from "@/src/admin/components/ui/StatCard";
 import BarChart, { DonutChart } from "@/src/admin/components/ui/Charts";
-import {
-  MOCK_STATS,
-  MOCK_AREAS_DISTRIBUCION,
-  MOCK_PROFESIONES_TOP,
-  MOCK_ACTIVIDAD_RECIENTE,
-  MOCK_USUARIOS,
-} from "@/src/admin/constants/adminData";
+import { getAdminStats } from "@/src/lib/api";
+
+function timeAgo(iso: string): string {
+  if (!iso) return "";
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "ahora";
+  if (mins < 60) return `hace ${mins} min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `hace ${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  return `hace ${days} día${days > 1 ? "s" : ""}`;
+}
 
 export default function AdminOverviewView() {
-  const totalTests = MOCK_USUARIOS.filter((u) => u.testCompletado).length;
-  const totalUsuarios = MOCK_USUARIOS.length;
-  const tasaComplecion = Math.round((totalTests / totalUsuarios) * 100);
+  const [stats, setStats] = useState<any>(null);
+  const [pregCount, setPregCount] = useState(0);
+  const [profCount, setProfCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const [s, pRes, prRes] = await Promise.all([
+        getAdminStats(),
+        fetch("/preguntas.json"),
+        fetch("/profesiones.json"),
+      ]);
+      setStats(s);
+      if (pRes.ok) {
+        const arr = await pRes.json();
+        setPregCount(arr.length);
+      }
+      if (prRes.ok) {
+        const arr = await prRes.json();
+        setProfCount(arr.length);
+      }
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  if (loading || !stats) {
+    return (
+      <div style={{ padding: "2rem 2.5rem", maxWidth: 1100, margin: "0 auto" }}>
+        <p style={{ color: COLORS.textMuted, fontSize: 14 }}>Cargando datos del sistema...</p>
+      </div>
+    );
+  }
+
+  const { total_usuarios, test_completados, area_distribucion, profesiones_top, actividad_reciente } = stats;
+  const enProgreso = total_usuarios - test_completados;
+  const tasaComplecion = total_usuarios > 0 ? Math.round((test_completados / total_usuarios) * 100) : 0;
+
+  const kpiCards = [
+    { label: "Usuarios Registrados",  value: total_usuarios, cambio: 0, icon: "ti-users",           color: "#4F6AF5", light: "#EEF1FF" },
+    { label: "Tests Realizados",      value: test_completados, cambio: 0, icon: "ti-clipboard-check", color: "#0F9B8E", light: "#E0F5F3" },
+    { label: "Preguntas Activas",     value: pregCount,       cambio: 0, icon: "ti-help-circle",     color: "#D97706", light: "#FEF3C7" },
+    { label: "Profesiones Cargadas",  value: profCount,       cambio: 0, icon: "ti-briefcase",       color: "#C0533A", light: "#FAF0ED" },
+  ];
 
   return (
     <div style={{ padding: "2rem 2.5rem", maxWidth: 1100, margin: "0 auto" }}>
@@ -26,7 +73,7 @@ export default function AdminOverviewView() {
           Resumen del Sistema
         </h2>
         <p style={{ margin: "4px 0 0", fontSize: 13.5, color: COLORS.textMuted }}>
-          Datos actualizados · Mayo 2025
+          Datos en tiempo real
         </p>
       </div>
 
@@ -39,7 +86,7 @@ export default function AdminOverviewView() {
           marginBottom: "2rem",
         }}
       >
-        {MOCK_STATS.map((stat) => (
+        {kpiCards.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
       </div>
@@ -67,8 +114,8 @@ export default function AdminOverviewView() {
             <i className="ti ti-trophy" style={{ fontSize: 20, color: COLORS.amber }} aria-hidden="true" />
           </div>
           <BarChart
-            data={MOCK_PROFESIONES_TOP.map((p) => ({
-              label: p.nombre,
+            data={(profesiones_top ?? []).map((p: any) => ({
+              label: p.area,
               value: p.cantidad,
               color: p.color,
               light: p.light,
@@ -89,7 +136,7 @@ export default function AdminOverviewView() {
             </div>
             <i className="ti ti-chart-pie" style={{ fontSize: 20, color: COLORS.accent }} aria-hidden="true" />
           </div>
-          <DonutChart data={MOCK_AREAS_DISTRIBUCION} />
+          <DonutChart data={area_distribucion ?? []} />
         </Card>
       </div>
 
@@ -133,8 +180,8 @@ export default function AdminOverviewView() {
           {/* Two stats */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {[
-              { label: "Tests completados", value: totalTests, color: COLORS.teal },
-              { label: "En progreso",        value: totalUsuarios - totalTests, color: COLORS.amber },
+              { label: "Tests completados", value: test_completados, color: COLORS.teal },
+              { label: "En progreso",        value: Math.max(0, enProgreso), color: COLORS.amber },
             ].map((item) => (
               <div
                 key={item.label}
@@ -162,80 +209,74 @@ export default function AdminOverviewView() {
             <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: COLORS.textMuted, textTransform: "uppercase", letterSpacing: ".5px" }}>
               Actividad reciente
             </p>
-            <span
-              style={{
-                fontSize: 11,
-                color: COLORS.accent,
-                fontWeight: 600,
-                background: COLORS.accentLight,
-                padding: "3px 10px",
-                borderRadius: 99,
-                cursor: "pointer",
-              }}
-            >
-              Ver todo
-            </span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-            {MOCK_ACTIVIDAD_RECIENTE.map((item, idx) => (
-              <div
-                key={item.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  paddingTop: idx === 0 ? 0 : "0.75rem",
-                  paddingBottom: "0.75rem",
-                  borderBottom: idx < MOCK_ACTIVIDAD_RECIENTE.length - 1 ? `1px solid ${COLORS.border}` : "none",
-                }}
-              >
+            {(actividad_reciente ?? []).length === 0 ? (
+              <p style={{ fontSize: 13, color: COLORS.textLight, textAlign: "center", padding: "1rem" }}>
+                Sin actividad reciente
+              </p>
+            ) : (actividad_reciente ?? []).map((item: any, idx: number) => {
+              const items = actividad_reciente ?? [];
+              return (
                 <div
+                  key={idx}
                   style={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: 10,
-                    background: `${item.color}18`,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
+                    gap: 12,
+                    paddingTop: idx === 0 ? 0 : "0.75rem",
+                    paddingBottom: "0.75rem",
+                    borderBottom: idx < items.length - 1 ? `1px solid ${COLORS.border}` : "none",
                   }}
                 >
-                  <i className={`ti ${item.icon}`} style={{ fontSize: 15, color: item.color }} aria-hidden="true" />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p
+                  <div
                     style={{
-                      margin: 0,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      color: COLORS.text,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      width: 34,
+                      height: 34,
+                      borderRadius: 10,
+                      background: `${item.color}18`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
                     }}
                   >
-                    {item.usuario}
-                  </p>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: 11.5,
-                      color: COLORS.textMuted,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {item.descripcion}
-                  </p>
+                    <i className={`ti ${item.icon}`} style={{ fontSize: 15, color: item.color }} aria-hidden="true" />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: COLORS.text,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {item.usuario}
+                    </p>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 11.5,
+                        color: COLORS.textMuted,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {item.descripcion}
+                    </p>
+                  </div>
+                  <span style={{ fontSize: 11, color: COLORS.textLight, flexShrink: 0 }}>
+                    {timeAgo(item.tiempo)}
+                  </span>
                 </div>
-                <span style={{ fontSize: 11, color: COLORS.textLight, flexShrink: 0 }}>
-                  {item.tiempo}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Card>
       </div>

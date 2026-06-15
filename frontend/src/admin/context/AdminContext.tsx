@@ -1,14 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import {
   AdminPregunta,
   AdminProfesion,
   AdminUsuario,
-  MOCK_PREGUNTAS,
-  MOCK_PROFESIONES,
-  MOCK_USUARIOS,
+  AREA_COLORS,
+  normalizeAreaName,
 } from "@/src/admin/constants/adminData";
+import { getAdminUsers } from "@/src/lib/api";
 
 export type AdminView = "overview" | "preguntas" | "profesiones" | "usuarios";
 
@@ -35,15 +35,79 @@ export interface AdminContextType {
 
   // Usuarios (read-only in admin)
   usuarios: AdminUsuario[];
+
+  // Refresh from JSON
+  loading: boolean;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
+function preguntasFromJson(json: any[]): AdminPregunta[] {
+  return json.map((q: any, idx: number) => {
+    const area = normalizeAreaName(q.area);
+    const colors = AREA_COLORS[area] || { color: "#6B7280", light: "#F3F4F6" };
+    return {
+      id: q.id ?? idx + 1,
+      area,
+      areaColor: colors.color,
+      areaLight: colors.light,
+      texto: q.pregunta,
+      activa: true,
+      createdAt: new Date().toISOString().split("T")[0],
+    };
+  });
+}
+
+function profesionesFromJson(json: any[]): AdminProfesion[] {
+  return json.map((p: any) => ({
+    id: p.id,
+    nombre: p.nombre,
+    area: p.area,
+    areaColor: p.areaColor,
+    areaLight: p.areaLight,
+    descripcion: p.descripcion,
+    universidades: p.universidades ?? [],
+    duracion: p.duracion,
+    activa: p.activa ?? true,
+  }));
+}
+
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [adminView, setAdminView] = useState<AdminView>("overview");
-  const [preguntas, setPreguntas] = useState<AdminPregunta[]>(MOCK_PREGUNTAS);
-  const [profesiones, setProfesiones] = useState<AdminProfesion[]>(MOCK_PROFESIONES);
-  const [usuarios] = useState<AdminUsuario[]>(MOCK_USUARIOS);
+  const [preguntas, setPreguntas] = useState<AdminPregunta[]>([]);
+  const [profesiones, setProfesiones] = useState<AdminProfesion[]>([]);
+  const [usuarios, setUsuarios] = useState<AdminUsuario[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [pResp, prResp] = await Promise.all([
+          fetch("/preguntas.json"),
+          fetch("/profesiones.json"),
+        ]);
+        if (pResp.ok) {
+          const pJson = await pResp.json();
+          setPreguntas(preguntasFromJson(pJson));
+        }
+        if (prResp.ok) {
+          const prJson = await prResp.json();
+          setProfesiones(profesionesFromJson(prJson));
+        }
+
+        // Load real user data from API
+        const users = await getAdminUsers();
+        if (users && users.length > 0) {
+          setUsuarios(users);
+        }
+      } catch {
+        // fallback empty arrays
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   // ── Preguntas ────────────────────────────────────────────────────────────
   const addPregunta = (p: Omit<AdminPregunta, "id" | "createdAt">) => {
@@ -108,6 +172,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         deleteProfesion,
         toggleProfesionActiva,
         usuarios,
+        loading,
       }}
     >
       {children}

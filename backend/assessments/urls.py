@@ -3,7 +3,9 @@ from .views import (
     ReflexionListView,
     ReflexionDetailView,
     ResultadoView,
-    ProyectoVidaView
+    ProyectoVidaView,
+    AdminStatsView,
+    AdminUsersView,
 )
 
 urlpatterns = [
@@ -12,4 +14,6 @@ urlpatterns = [
     path('reflections/<int:orden>/', ReflexionDetailView.as_view(), name='reflexion-detail'),
     path('results/', ResultadoView.as_view(), name='resultado-detail'),
     path('life-project/', ProyectoVidaView.as_view(), name='proyecto-vida'),
+    path('admin/stats/', AdminStatsView.as_view(), name='admin-stats'),
+    path('admin/users/', AdminUsersView.as_view(), name='admin-users'),
 ]

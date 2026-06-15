@@ -7,7 +7,7 @@ import { useAdmin, AdminView } from "@/src/admin/context/AdminContext";
 import { useAuth } from "@/src/context/AuthContext";
 
 export default function AdminSidebar() {
-  const { adminView, setAdminView } = useAdmin();
+  const { adminView, setAdminView, preguntas, usuarios } = useAdmin();
   const { logout: logoutAdmin } = useAuth();
 
   return (
@@ -95,6 +95,7 @@ export default function AdminSidebar() {
 
         {ADMIN_NAV_LINKS.map((link) => {
           const isActive = adminView === link.id;
+          const badge = link.id === "preguntas" ? preguntas.length : link.id === "usuarios" ? usuarios.length : link.badge;
           return (
             <button
               key={link.id}
@@ -132,7 +133,7 @@ export default function AdminSidebar() {
                 />
                 {link.label}
               </span>
-              {link.badge != null && (
+              {badge != null && badge > 0 && (
                 <span
                   style={{
                     background: isActive ? COLORS.accent : COLORS.accentMid,
@@ -145,7 +146,7 @@ export default function AdminSidebar() {
                     textAlign: "center",
                   }}
                 >
-                  {link.badge}
+                  {badge}
                 </span>
               )}
             </button>

@@ -253,6 +253,28 @@ export async function saveResults(
   return res.ok;
 }
 
+export async function getAdminStats(): Promise<any> {
+  const token = getAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${API_URL}/admin/stats/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.data;
+}
+
+export async function getAdminUsers(): Promise<any[]> {
+  const token = getAccessToken();
+  if (!token) return [];
+  const res = await fetch(`${API_URL}/admin/users/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.data ?? [];
+}
+
 export async function getLifeProject(): Promise<any> {
   const token = getAccessToken();
   if (!token) return null;

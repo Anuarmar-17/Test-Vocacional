@@ -1,6 +1,23 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+
+function timeAgo(iso: string): string {
+  if (!iso) return "";
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "ahora";
+  if (mins < 60) return `hace ${mins} min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `hace ${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  return `hace ${days} día${days > 1 ? "s" : ""}`;
+}
+
+function formatDate(iso: string): string {
+  if (!iso) return "—";
+  return iso.split("T")[0];
+}
 import { COLORS } from "@/src/constants/vocacional";
 import Card from "@/src/components/ui/Card";
 import SearchBar from "@/src/admin/components/ui/SearchBar";
@@ -141,7 +158,7 @@ export default function AdminUsuariosView() {
                     </div>
                   </td>
                   <td style={{ padding: "13px 16px", fontSize: 12.5, color: COLORS.textMuted }}>{u.email}</td>
-                  <td style={{ padding: "13px 16px", fontSize: 12.5, color: COLORS.textMuted, whiteSpace: "nowrap" }}>{u.fechaRegistro}</td>
+                  <td style={{ padding: "13px 16px", fontSize: 12.5, color: COLORS.textMuted, whiteSpace: "nowrap" }}>{formatDate(u.fechaRegistro)}</td>
                   {/* Progress */}
                   <td style={{ padding: "13px 16px", minWidth: 140 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -160,7 +177,7 @@ export default function AdminUsuariosView() {
                       <span style={{ background: u.areaLight, color: u.areaColor, fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 20, whiteSpace: "nowrap" }}>{u.areaPrincipal}</span>
                     )}
                   </td>
-                  <td style={{ padding: "13px 16px", fontSize: 12, color: COLORS.textLight, whiteSpace: "nowrap" }}>{u.ultimaActividad}</td>
+                  <td style={{ padding: "13px 16px", fontSize: 12, color: COLORS.textLight, whiteSpace: "nowrap" }}>{timeAgo(u.ultimaActividad)}</td>
                   <td style={{ padding: "13px 16px" }}>
                     <i className="ti ti-chevron-right" style={{ fontSize: 15, color: COLORS.textLight }} />
                   </td>
@@ -192,8 +209,8 @@ export default function AdminUsuariosView() {
             {/* Info grid */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {[
-                { label: "Fecha de registro", value: selected.fechaRegistro, icon: "ti-calendar" },
-                { label: "Última actividad",  value: selected.ultimaActividad, icon: "ti-clock" },
+                { label: "Fecha de registro", value: formatDate(selected.fechaRegistro), icon: "ti-calendar" },
+                { label: "Última actividad",  value: timeAgo(selected.ultimaActividad), icon: "ti-clock" },
                 { label: "Preguntas respondidas", value: `${selected.preguntasRespondidas} / 80`, icon: "ti-help-circle" },
                 { label: "Área principal",    value: selected.areaPrincipal, icon: "ti-target" },
               ].map((d) => (
