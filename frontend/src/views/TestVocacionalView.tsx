@@ -100,6 +100,8 @@ export default function TestVocacionalView() {
         );
         return;
       }
+      // Save before showing results
+      saveTestAnswers(testAnswers);
       alert("¡Enhorabuena! Has respondido las 80 preguntas con éxito. Calculando tus resultados vocacionales...");
       setView("resultados");
     }

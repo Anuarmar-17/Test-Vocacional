@@ -48,11 +48,13 @@ export interface VocacionalContextType {
 export const VocacionalContext = createContext<VocacionalContextType | undefined>(undefined);
 
 import { useAuth } from "./AuthContext";
-import { getReflections, saveReflections as apiSaveReflections, getTestResults, saveTestResults as apiSaveTestResults, getLifeProject, saveLifeProject as apiSaveLifeProject } from "@/src/lib/api";
+import { getReflections, saveReflections as apiSaveReflections, getTestResults, saveTestResults as apiSaveTestResults, getLifeProject, saveLifeProject as apiSaveLifeProject, getResults, saveResults } from "@/src/lib/api";
 
 const INITIAL_REFLECTIONS: Record<string, string> = {};
 const INITIAL_ANSWERS: Record<number, string> = {};
 const INITIAL_LIFE_PROJECT: Record<string, string> = {};
+
+const ANSWERS_STORAGE_KEY = 'vocacional_test_answers';
 
 // ─── Area name mapping (preguntas.json area name → resultados_acumulados key) ─
 const AREA_NAMES = [
@@ -111,6 +113,41 @@ export function VocacionalProvider({ children }: { children: ReactNode }) {
   const [lifeProject, setLifeProject] = useState<Record<string, string>>(INITIAL_LIFE_PROJECT);
   const [resultadosAcumulados, setResultadosAcumulados] = useState<ResultadosAcumulados | null>(null);
   const [preguntas, setPreguntas] = useState<any[]>([]);
+  const [restoredFromStorage, setRestoredFromStorage] = useState(false);
+
+  // Restore testAnswers from localStorage ONLY when not authenticated
+  // (anonymous fallback). Authenticated users always load from API.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (isAuthenticated) {
+      setRestoredFromStorage(true);
+      return;
+    }
+    try {
+      const saved = localStorage.getItem(ANSWERS_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Object.keys(parsed).length > 0) {
+          setTestAnswers(parsed);
+        }
+      }
+    } catch (e) {
+      console.error('Error restoring testAnswers from localStorage', e);
+    } finally {
+      setRestoredFromStorage(true);
+    }
+  }, [isAuthenticated]);
+
+  // Persist testAnswers to localStorage (anonymous fallback + authenticated cache)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (Object.keys(testAnswers).length === 0) return;
+    try {
+      localStorage.setItem(ANSWERS_STORAGE_KEY, JSON.stringify(testAnswers));
+    } catch (e) {
+      console.error('Error saving testAnswers to localStorage', e);
+    }
+  }, [testAnswers]);
 
   // Load preguntas.json once to know the area of each question
   useEffect(() => {
@@ -128,28 +165,34 @@ export function VocacionalProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function loadData() {
-      if (!isAuthenticated) return;
+      if (!isAuthenticated || !user) return;
       setIsLoadingContext(true);
       try {
         const refs = await getReflections();
         if (refs && Array.isArray(refs)) {
           const formattedRefs: Record<string, string> = {};
           refs.forEach((r: any) => {
-            formattedRefs[`r-${r.orden}`] = r.respuesta;
+            formattedRefs[r.orden.toString()] = r.respuesta;
           });
           setReflections(formattedRefs);
         }
 
-        const results = await getTestResults();
+        const results = await getResults();
         if (results && results.datos) {
           // datos contains { respuestas: {...}, resultados_por_area: {...} }
-          if (results.datos.respuestas) {
+          if (results.datos.respuestas && Object.keys(results.datos.respuestas).length > 0) {
             // Convert string keys back to number keys
             const parsed: Record<number, string> = {};
             Object.entries(results.datos.respuestas).forEach(([k, v]) => {
               parsed[Number(k)] = v as string;
             });
             setTestAnswers(parsed);
+          } else {
+            // No saved answers for this user — clear any stale localStorage
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem(ANSWERS_STORAGE_KEY);
+            }
+            setTestAnswers({});
           }
           if (results.datos.resultados_por_area) {
             setResultadosAcumulados({
@@ -160,11 +203,27 @@ export function VocacionalProvider({ children }: { children: ReactNode }) {
               resultados_por_area: results.datos.resultados_por_area,
             });
           }
+        } else {
+          // No results at all for this user — clear stale localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(ANSWERS_STORAGE_KEY);
+          }
+          setTestAnswers({});
         }
 
         const lp = await getLifeProject();
         if (lp) {
-          setLifeProject(lp);
+          setLifeProject({
+            vision: lp.vision || "",
+            corto: lp.meta_corto_plazo || "",
+            mediano: lp.meta_mediano_plazo || "",
+            largo: lp.meta_largo_plazo || "",
+            compromisos: lp.compromisos || "",
+            "acad-0": lp.tiene_claro_carrera === true ? "Sí" : (lp.tiene_claro_carrera === false ? "No" : ""),
+            "acad-1": lp.conoce_requisitos === true ? "Sí" : (lp.conoce_requisitos === false ? "No" : ""),
+            "acad-2": lp.investigo_financiamiento === true ? "Sí" : (lp.investigo_financiamiento === false ? "No" : ""),
+            "acad-3": lp.tiene_apoyo_familiar === true ? "Sí" : (lp.tiene_apoyo_familiar === false ? "No" : ""),
+          });
         }
       } catch (err) {
         console.error("Failed to load context data", err);
@@ -173,7 +232,7 @@ export function VocacionalProvider({ children }: { children: ReactNode }) {
       }
     }
     loadData();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   // ─── Recalculate resultados_acumulados from answers + preguntas ──────────
   function recalcularResultados(answers: Record<number, string>): ResultadosAcumulados {
@@ -208,6 +267,18 @@ export function VocacionalProvider({ children }: { children: ReactNode }) {
     return acumulados;
   }
 
+  const calculateAreas = (currentAnswers: Record<number, string>): ResultadosAcumulados => {
+    return recalcularResultados(currentAnswers);
+  };
+
+  // Recalculate areas every time testAnswers changes (real-time score updates)
+  useEffect(() => {
+    if (Object.keys(testAnswers).length > 0) {
+      const areas = calculateAreas(testAnswers);
+      setResultadosAcumulados(areas);
+    }
+  }, [testAnswers]);
+
   const saveReflections = async (newReflections: Record<string, string>) => {
     setReflections(newReflections);
     if (!isAuthenticated) return;
@@ -222,23 +293,31 @@ export function VocacionalProvider({ children }: { children: ReactNode }) {
   const saveTestAnswers = async (newAnswers: Record<number, string>) => {
     setTestAnswers(newAnswers);
 
-    // Recalculate accumulated results
-    const nuevoResultado = recalcularResultados(newAnswers);
-    setResultadosAcumulados(nuevoResultado);
-
     if (isAuthenticated) {
-      // Send both raw answers AND accumulated results to the backend
-      await apiSaveTestResults({
-        respuestas: newAnswers,
-        resultados_por_area: nuevoResultado.resultados_por_area,
-      } as any);
+      const areas = calculateAreas(newAnswers);
+      setResultadosAcumulados(areas);
+      const ok = await saveResults(newAnswers, areas.resultados_por_area);
+      if (ok && typeof window !== 'undefined') {
+        localStorage.removeItem(ANSWERS_STORAGE_KEY);
+      }
     }
   };
 
   const saveLifeProject = async (newData: Record<string, string>) => {
     setLifeProject(newData);
     if (isAuthenticated) {
-      await apiSaveLifeProject(newData);
+      const payload: Record<string, any> = {
+        vision: newData.vision || "",
+        meta_corto_plazo: newData.corto || "",
+        meta_mediano_plazo: newData.mediano || "",
+        meta_largo_plazo: newData.largo || "",
+        compromisos: newData.compromisos || "",
+        tiene_claro_carrera: newData["acad-0"] === "Sí" ? true : (newData["acad-0"] === "No" ? false : null),
+        conoce_requisitos: newData["acad-1"] === "Sí" ? true : (newData["acad-1"] === "No" ? false : null),
+        investigo_financiamiento: newData["acad-2"] === "Sí" ? true : (newData["acad-2"] === "No" ? false : null),
+        tiene_apoyo_familiar: newData["acad-3"] === "Sí" ? true : (newData["acad-3"] === "No" ? false : null),
+      };
+      await apiSaveLifeProject(payload);
     }
   };
 

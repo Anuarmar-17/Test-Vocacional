@@ -7,10 +7,20 @@ import { useVocacional } from "@/src/hooks/useVocacional";
 export default function ProyectoVidaView() {
   const { lifeProject, saveLifeProject } = useVocacional();
   const [localVals, setLocalVals] = useState<Record<string, string>>({});
+  const [editing, setEditing] = useState<Record<string, boolean>>({});
 
   // Sync with global context state on mount
   useEffect(() => {
     setLocalVals(lifeProject);
+  }, [lifeProject]);
+
+  // Initialize editing: false (read) if has answer, true (write) if empty
+  useEffect(() => {
+    const initialEditing: Record<string, boolean> = {};
+    ["vision", "corto", "mediano", "largo", "compromisos"].forEach((key) => {
+      initialEditing[key] = !(lifeProject[key] && lifeProject[key].trim() !== "");
+    });
+    setEditing(initialEditing);
   }, [lifeProject]);
 
   const set = (k: string, v: string) => {
@@ -99,25 +109,82 @@ export default function ProyectoVidaView() {
           />
           Mi visión personal
         </h3>
-        <textarea
-          value={localVals.vision || ""}
-          onChange={(e) => set("vision", e.target.value)}
-          placeholder="Describe cómo te imaginas en el futuro: quién quieres ser, qué quieres lograr y cómo quieres que te recuerden..."
-          style={{
-            width: "100%",
-            minHeight: 100,
-            borderRadius: 10,
-            border: `1px solid ${COLORS.border}`,
-            padding: 14,
-            fontSize: 14,
-            resize: "vertical",
-            color: COLORS.text,
-            fontFamily: "inherit",
-            background: COLORS.bg,
-            outline: "none",
-            boxSizing: "border-box",
-          }}
-        />
+        {!editing.vision ? (
+          <div
+            style={{
+              width: "100%",
+              minHeight: 100,
+              borderRadius: 10,
+              border: `1px solid ${COLORS.border}`,
+              padding: 14,
+              fontSize: 14,
+              color: COLORS.text,
+              background: "#F8F9FB",
+              boxSizing: "border-box",
+              whiteSpace: "pre-wrap",
+              position: "relative",
+            }}
+          >
+            <span>{localVals.vision || ""}</span>
+            <button
+              onClick={() => setEditing((prev) => ({ ...prev, vision: true }))}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                background: "white",
+                border: `1px solid ${COLORS.border}`,
+                borderRadius: 6,
+                padding: "4px 10px",
+                fontSize: 12,
+                color: COLORS.textMuted,
+                cursor: "pointer",
+              }}
+            >
+              Editar
+            </button>
+          </div>
+        ) : (
+          <div style={{ position: "relative" }}>
+            <textarea
+              value={localVals.vision || ""}
+              onChange={(e) => set("vision", e.target.value)}
+              placeholder="Describe cómo te imaginas en el futuro: quién quieres ser, qué quieres lograr y cómo quieres que te recuerden..."
+              style={{
+                width: "100%",
+                minHeight: 100,
+                borderRadius: 10,
+                border: `1px solid ${COLORS.border}`,
+                padding: "14px 70px 14px 14px",
+                fontSize: 14,
+                resize: "vertical",
+                color: COLORS.text,
+                fontFamily: "inherit",
+                background: COLORS.bg,
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+            <button
+              onClick={() => setEditing((prev) => ({ ...prev, vision: false }))}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                background: COLORS.teal,
+                color: "#fff",
+                border: "none",
+                borderRadius: 6,
+                padding: "4px 10px",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Guardar
+            </button>
+          </div>
+        )}
       </Card>
 
       <div
@@ -165,25 +232,82 @@ export default function ProyectoVidaView() {
                 </p>
               </div>
             </div>
-            <textarea
-              value={localVals[m.id] || ""}
-              onChange={(e) => set(m.id, e.target.value)}
-              placeholder="Escribe tus metas..."
-              style={{
-                width: "100%",
-                minHeight: 90,
-                borderRadius: 8,
-                border: `1px solid ${COLORS.border}`,
-                padding: 10,
-                fontSize: 13,
-                resize: "vertical",
-                color: COLORS.text,
-                fontFamily: "inherit",
-                background: COLORS.bg,
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-            />
+            {!editing[m.id] ? (
+              <div
+                style={{
+                  width: "100%",
+                  minHeight: 90,
+                  borderRadius: 8,
+                  border: `1px solid ${COLORS.border}`,
+                  padding: 10,
+                  fontSize: 13,
+                  color: COLORS.text,
+                  background: "#F8F9FB",
+                  boxSizing: "border-box",
+                  whiteSpace: "pre-wrap",
+                  position: "relative",
+                }}
+              >
+                <span>{localVals[m.id] || ""}</span>
+                <button
+                  onClick={() => setEditing((prev) => ({ ...prev, [m.id]: true }))}
+                  style={{
+                    position: "absolute",
+                    top: 6,
+                    right: 6,
+                    background: "white",
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: 6,
+                    padding: "3px 8px",
+                    fontSize: 11,
+                    color: COLORS.textMuted,
+                    cursor: "pointer",
+                  }}
+                >
+                  Editar
+                </button>
+              </div>
+            ) : (
+              <div style={{ position: "relative" }}>
+                <textarea
+                  value={localVals[m.id] || ""}
+                  onChange={(e) => set(m.id, e.target.value)}
+                  placeholder="Escribe tus metas..."
+                  style={{
+                    width: "100%",
+                    minHeight: 90,
+                    borderRadius: 8,
+                    border: `1px solid ${COLORS.border}`,
+                    padding: "10px 60px 10px 10px",
+                    fontSize: 13,
+                    resize: "vertical",
+                    color: COLORS.text,
+                    fontFamily: "inherit",
+                    background: COLORS.bg,
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+                <button
+                  onClick={() => setEditing((prev) => ({ ...prev, [m.id]: false }))}
+                  style={{
+                    position: "absolute",
+                    top: 6,
+                    right: 6,
+                    background: COLORS.teal,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 6,
+                    padding: "3px 8px",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Guardar
+                </button>
+              </div>
+            )}
           </Card>
         ))}
       </div>
@@ -285,25 +409,82 @@ export default function ProyectoVidaView() {
           />
           Mis compromisos personales
         </h3>
-        <textarea
-          value={localVals.compromisos || ""}
-          onChange={(e) => set("compromisos", e.target.value)}
-          placeholder="¿A qué te comprometes para lograr tus metas? Escribe acciones concretas y fechas..."
-          style={{
-            width: "100%",
-            minHeight: 90,
-            borderRadius: 10,
-            border: `1px solid ${COLORS.accentMid}`,
-            padding: 14,
-            fontSize: 14,
-            resize: "vertical",
-            color: COLORS.text,
-            fontFamily: "inherit",
-            background: "white",
-            outline: "none",
-            boxSizing: "border-box",
-          }}
-        />
+        {!editing.compromisos ? (
+          <div
+            style={{
+              width: "100%",
+              minHeight: 90,
+              borderRadius: 10,
+              border: `1px solid ${COLORS.accentMid}`,
+              padding: 14,
+              fontSize: 14,
+              color: COLORS.text,
+              background: "#F8F9FB",
+              boxSizing: "border-box",
+              whiteSpace: "pre-wrap",
+              position: "relative",
+            }}
+          >
+            <span>{localVals.compromisos || ""}</span>
+            <button
+              onClick={() => setEditing((prev) => ({ ...prev, compromisos: true }))}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                background: "white",
+                border: `1px solid ${COLORS.border}`,
+                borderRadius: 6,
+                padding: "4px 10px",
+                fontSize: 12,
+                color: COLORS.textMuted,
+                cursor: "pointer",
+              }}
+            >
+              Editar
+            </button>
+          </div>
+        ) : (
+          <div style={{ position: "relative" }}>
+            <textarea
+              value={localVals.compromisos || ""}
+              onChange={(e) => set("compromisos", e.target.value)}
+              placeholder="¿A qué te comprometes para lograr tus metas? Escribe acciones concretas y fechas..."
+              style={{
+                width: "100%",
+                minHeight: 90,
+                borderRadius: 10,
+                border: `1px solid ${COLORS.accentMid}`,
+                padding: "14px 70px 14px 14px",
+                fontSize: 14,
+                resize: "vertical",
+                color: COLORS.text,
+                fontFamily: "inherit",
+                background: "white",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+            <button
+              onClick={() => setEditing((prev) => ({ ...prev, compromisos: false }))}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                background: COLORS.teal,
+                color: "#fff",
+                border: "none",
+                borderRadius: 6,
+                padding: "4px 10px",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Guardar
+            </button>
+          </div>
+        )}
       </Card>
 
       <div

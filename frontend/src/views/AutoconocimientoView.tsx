@@ -8,10 +8,21 @@ export default function AutoconocimientoView() {
   const { reflections, saveReflections } = useVocacional();
   const [tab, setTab] = useState<number>(0);
   const [localVals, setLocalVals] = useState<Record<string, string>>({});
+  const [editing, setEditing] = useState<Record<string, boolean>>({});
 
   // Sync with global reflections on mount
   useEffect(() => {
     setLocalVals(reflections);
+  }, [reflections]);
+
+  // Initialize editing: false (read) if has answer, true (write) if empty
+  useEffect(() => {
+    const initialEditing: Record<string, boolean> = {};
+    for (let i = 0; i < 9; i++) {
+      const key = i.toString();
+      initialEditing[key] = !(reflections[key] && reflections[key].trim() !== "");
+    }
+    setEditing(initialEditing);
   }, [reflections]);
 
   const tabs = ["¿Quién soy?", "Mis valores", "Metas personales"];
@@ -131,7 +142,8 @@ export default function AutoconocimientoView() {
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {questions[tab].map((q, i) => {
-              const key = `${tab}-${i}`;
+              const key = (tab * 3 + i).toString();
+              const isEditing = editing[key];
               return (
                 <div key={i}>
                   <label
@@ -145,27 +157,88 @@ export default function AutoconocimientoView() {
                   >
                     {q}
                   </label>
-                  <textarea
-                    value={localVals[key] || ""}
-                    onChange={(e) =>
-                      setLocalVals((v) => ({ ...v, [key]: e.target.value }))
-                    }
-                    placeholder="Escribe tu reflexión aquí..."
-                    style={{
-                      width: "100%",
-                      minHeight: 80,
-                      borderRadius: 10,
-                      border: `1px solid ${COLORS.border}`,
-                      padding: 12,
-                      fontSize: 14,
-                      resize: "vertical",
-                      color: COLORS.text,
-                      fontFamily: "inherit",
-                      background: COLORS.bg,
-                      outline: "none",
-                      boxSizing: "border-box",
-                    }}
-                  />
+                  {!isEditing ? (
+                    <div
+                      style={{
+                        width: "100%",
+                        minHeight: 80,
+                        borderRadius: 10,
+                        border: `1px solid ${COLORS.border}`,
+                        padding: 12,
+                        fontSize: 14,
+                        color: COLORS.text,
+                        background: "#F8F9FB",
+                        boxSizing: "border-box",
+                        whiteSpace: "pre-wrap",
+                        position: "relative",
+                      }}
+                    >
+                      <span>{localVals[key] || ""}</span>
+                      <button
+                        onClick={() =>
+                          setEditing((prev) => ({ ...prev, [key]: true }))
+                        }
+                        style={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                          background: "white",
+                          border: `1px solid ${COLORS.border}`,
+                          borderRadius: 6,
+                          padding: "4px 10px",
+                          fontSize: 12,
+                          color: COLORS.textMuted,
+                          cursor: "pointer",
+                        }}
+                      >
+                        Editar
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ position: "relative" }}>
+                      <textarea
+                        value={localVals[key] || ""}
+                        onChange={(e) =>
+                          setLocalVals((v) => ({ ...v, [key]: e.target.value }))
+                        }
+                        placeholder="Escribe tu reflexión aquí..."
+                        style={{
+                          width: "100%",
+                          minHeight: 80,
+                          borderRadius: 10,
+                          border: `1px solid ${COLORS.border}`,
+                          padding: "12px 70px 12px 12px",
+                          fontSize: 14,
+                          resize: "vertical",
+                          color: COLORS.text,
+                          fontFamily: "inherit",
+                          background: COLORS.bg,
+                          outline: "none",
+                          boxSizing: "border-box",
+                        }}
+                      />
+                      <button
+                        onClick={() =>
+                          setEditing((prev) => ({ ...prev, [key]: false }))
+                        }
+                        style={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                          background: COLORS.teal,
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: 6,
+                          padding: "4px 10px",
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                        }}
+                      >
+                        Guardar
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}
