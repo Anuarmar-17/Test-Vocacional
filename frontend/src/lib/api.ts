@@ -62,6 +62,18 @@ export function clearStoredUser(): void {
 
 // ─── API Calls ──────────────────────────────────────────────────────────────
 
+export interface RegisterData {
+  nombre: string;
+  apellido: string;
+  correo: string;
+  password: string;
+  confirm_password: string;
+  curso: string;
+  edad?: number | null;
+  tipo_documento?: string;
+  numero_documento?: string;
+}
+
 interface LoginResponse {
   tokens: { access: string; refresh: string };
   user: UserData;
@@ -101,6 +113,25 @@ export async function loginUser(
   setStoredUser(loginData.user);
 
   return loginData;
+}
+
+/**
+ * Register a new user.
+ */
+export async function registerUser(data: RegisterData): Promise<{ message: string }> {
+  const res = await fetch(`${API_URL}/auth/register/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.error || 'Error en el registro');
+  }
+
+  return { message: json.message || 'Registro exitoso' };
 }
 
 /**

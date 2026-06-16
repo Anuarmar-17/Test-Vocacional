@@ -3,7 +3,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import {
   UserData,
+  RegisterData,
   loginUser as apiLogin,
+  registerUser as apiRegister,
   logoutUser as apiLogout,
   getStoredUser,
   getAccessToken,
@@ -18,6 +20,7 @@ export interface AuthContextType {
   isAdmin: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<UserData>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => void;
 }
 
@@ -71,6 +74,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return response.user;
   }, []);
 
+  const register = useCallback(async (data: RegisterData): Promise<void> => {
+    await apiRegister(data);
+  }, []);
+
   const logout = useCallback(() => {
     apiLogout();
     setUser(null);
@@ -87,6 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAdmin,
         isLoading,
         login,
+        register,
         logout,
       }}
     >

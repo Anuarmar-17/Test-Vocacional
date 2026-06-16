@@ -9,6 +9,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Usuario
+from .serializers import RegisterSerializer
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -76,6 +77,39 @@ def _get_usuario_from_token(request) -> Usuario | None:
 
 
 # ─── Views ───────────────────────────────────────────────────────────────────
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register_view(request):
+    """Registra un nuevo usuario estudiante."""
+    serializer = RegisterSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if Usuario.objects.filter(correo=serializer.validated_data['correo'].lower()).exists():
+        return Response(
+            {'error': 'El correo ya está registrado.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    Usuario.objects.create(
+        nombre=serializer.validated_data['nombre'],
+        apellido=serializer.validated_data.get('apellido', ''),
+        correo=serializer.validated_data['correo'].lower(),
+        password_hash=serializer.validated_data['password'],
+        curso=serializer.validated_data.get('curso', ''),
+        edad=serializer.validated_data.get('edad'),
+        tipo_documento=serializer.validated_data.get('tipo_documento'),
+        numero_documento=serializer.validated_data.get('numero_documento'),
+        rol_id=2,
+        activo=True,
+        session_id=str(uuid.uuid4()),
+    )
+
+    return Response({
+        'message': 'Registro exitoso. Ahora puedes iniciar sesión.',
+    }, status=status.HTTP_201_CREATED)
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

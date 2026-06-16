@@ -35,6 +35,8 @@ class Usuario(models.Model):
     password_hash = models.CharField(max_length=255, null=True, blank=True)
     curso = models.CharField(max_length=10, null=True, blank=True)
     edad = models.IntegerField(null=True, blank=True)
+    tipo_documento = models.CharField(max_length=2, choices=[('CC','Cédula'),('TI','Tarjeta Identidad'),('CE','Cédula Extranjería')], null=True, blank=True)
+    numero_documento = models.CharField(max_length=20, null=True, blank=True)
     session_id = models.CharField(max_length=36, null=True, blank=True, unique=True)
     activo = models.BooleanField(default=True)
     ultima_actividad = models.DateTimeField(null=True, blank=True)

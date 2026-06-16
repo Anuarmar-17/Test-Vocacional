@@ -1,8 +1,13 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/src/context/AuthContext';
 
 const RegisterView = () => {
+  const router = useRouter();
+  const { register } = useAuth();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -14,12 +19,15 @@ const RegisterView = () => {
     documentType: '',
     documentNumber: '',
     course: '',
+    age: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState('');
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -27,8 +35,6 @@ const RegisterView = () => {
     if (!formData.firstName) newErrors.firstName = 'Obligatorio';
     if (!formData.lastName) newErrors.lastName = 'Obligatorio';
     if (!formData.secondLastName) newErrors.secondLastName = 'Obligatorio';
-    if (!formData.documentType) newErrors.documentType = 'Obligatorio';
-    if (!formData.documentNumber) newErrors.documentNumber = 'Obligatorio';
     if (!formData.course) newErrors.course = 'Obligatorio';
 
     if (!formData.email) {
@@ -60,11 +66,33 @@ const RegisterView = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      // Proceed with registration
-      console.log('Form is valid', formData);
+    setServerError('');
+
+    if (!validate()) return;
+
+    setIsLoading(true);
+    try {
+      await register({
+        nombre: `${formData.firstName}${formData.middleName ? ' ' + formData.middleName : ''}`,
+        apellido: `${formData.lastName}${formData.secondLastName ? ' ' + formData.secondLastName : ''}`,
+        correo: formData.email,
+        password: formData.password,
+        confirm_password: formData.confirmPassword,
+        curso: formData.course,
+        edad: formData.age ? parseInt(formData.age) : null,
+        tipo_documento: formData.documentType || undefined,
+        numero_documento: formData.documentNumber || undefined,
+      });
+
+      router.push('/login');
+    } catch (err) {
+      setServerError(
+        err instanceof Error ? err.message : 'Error en el registro'
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -149,6 +177,15 @@ const RegisterView = () => {
             <p className="text-gray-500 text-sm">Ingresa tus datos para registrarte en la plataforma</p>
           </div>
 
+          {serverError && (
+            <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>{serverError}</span>
+            </div>
+          )}
+
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -159,6 +196,7 @@ const RegisterView = () => {
                   onChange={handleChange}
                   placeholder="Primer nombre *"
                   className={`w-full text-gray-500 px-4 py-3.5 rounded-xl border ${errors.firstName ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm`}
+                  disabled={isLoading}
                 />
                 {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
               </div>
@@ -170,6 +208,7 @@ const RegisterView = () => {
                   onChange={handleChange}
                   placeholder="Segundo nombre (opcional)"
                   className="w-full text-gray-500 px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -183,6 +222,7 @@ const RegisterView = () => {
                   onChange={handleChange}
                   placeholder="Primer apellido *"
                   className={`w-full text-gray-500 px-4 py-3.5 rounded-xl border ${errors.lastName ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm`}
+                  disabled={isLoading}
                 />
                 {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
               </div>
@@ -194,6 +234,7 @@ const RegisterView = () => {
                   onChange={handleChange}
                   placeholder="Segundo apellido *"
                   className={`w-full text-gray-500 px-4 py-3.5 rounded-xl border ${errors.secondLastName ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm`}
+                  disabled={isLoading}
                 />
                 {errors.secondLastName && <p className="text-red-500 text-xs mt-1">{errors.secondLastName}</p>}
               </div>
@@ -205,14 +246,14 @@ const RegisterView = () => {
                   name="documentType"
                   value={formData.documentType}
                   onChange={handleChange}
-                  className={`w-full text-gray-500 px-4 py-3.5 rounded-xl border ${errors.documentType ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm appearance-none cursor-pointer`}
+                  className="w-full text-gray-500 px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm appearance-none cursor-pointer"
+                  disabled={isLoading}
                 >
-                  <option value="" disabled>Tipo de documento *</option>
+                  <option value="">Tipo de documento (opcional)</option>
                   <option value="CC">Cédula de ciudadanía</option>
                   <option value="TI">Tarjeta de identidad</option>
                   <option value="CE">Cédula de extranjería</option>
                 </select>
-                {errors.documentType && <p className="text-red-500 text-xs mt-1">{errors.documentType}</p>}
               </div>
               <div>
                 <input
@@ -220,23 +261,39 @@ const RegisterView = () => {
                   name="documentNumber"
                   value={formData.documentNumber}
                   onChange={handleChange}
-                  placeholder="Núm. de documento *"
-                  className={`w-full text-gray-500 px-4 py-3.5 rounded-xl border ${errors.documentNumber ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm`}
+                  placeholder="Núm. de documento (opcional)"
+                  className="w-full text-gray-500 px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm"
+                  disabled={isLoading}
                 />
-                {errors.documentNumber && <p className="text-red-500 text-xs mt-1">{errors.documentNumber}</p>}
               </div>
             </div>
 
-            <div>
-              <input
-                type="text"
-                name="course"
-                value={formData.course}
-                onChange={handleChange}
-                placeholder="Curso (ej. 10° B, 11° D) *"
-                className={`w-full text-gray-500 px-4 py-3.5 rounded-xl border ${errors.course ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm`}
-              />
-              {errors.course && <p className="text-red-500 text-xs mt-1">{errors.course}</p>}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <input
+                  type="text"
+                  name="course"
+                  value={formData.course}
+                  onChange={handleChange}
+                  placeholder="Curso (ej. 10° B, 11° D) *"
+                  className={`w-full text-gray-500 px-4 py-3.5 rounded-xl border ${errors.course ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm`}
+                  disabled={isLoading}
+                />
+                {errors.course && <p className="text-red-500 text-xs mt-1">{errors.course}</p>}
+              </div>
+              <div>
+                <input
+                  type="number"
+                  name="age"
+                  value={formData.age}
+                  onChange={handleChange}
+                  placeholder="Edad (opcional)"
+                  min="1"
+                  max="120"
+                  className="w-full text-gray-500 px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm"
+                  disabled={isLoading}
+                />
+              </div>
             </div>
 
             <div>
@@ -247,6 +304,7 @@ const RegisterView = () => {
                 onChange={handleChange}
                 placeholder="Correo electrónico *"
                 className={`w-full text-gray-500 px-4 py-3.5 rounded-xl border ${errors.email ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm`}
+                disabled={isLoading}
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
@@ -260,6 +318,7 @@ const RegisterView = () => {
                   onChange={handleChange}
                   placeholder="Contraseña *"
                   className={`w-full text-gray-500 px-4 py-3.5 rounded-xl border ${errors.password ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm pr-12`}
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
@@ -288,6 +347,7 @@ const RegisterView = () => {
                   onChange={handleChange}
                   placeholder="Confirme cont. *"
                   className={`w-full text-gray-500 px-4 py-3.5 rounded-xl border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-[#7C5CFC]/20 focus:border-[#7C5CFC] transition-all bg-white text-sm pr-12`}
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
@@ -311,9 +371,20 @@ const RegisterView = () => {
 
             <button
               type="submit"
-              className="w-full mt-4 bg-[#7C5CFC] hover:bg-[#6a4ee0] text-white font-medium py-3.5 rounded-xl transition-colors shadow-sm shadow-[#7C5CFC]/30 active:scale-[0.98]"
+              disabled={isLoading}
+              className="w-full mt-4 bg-[#7C5CFC] hover:bg-[#6a4ee0] disabled:bg-[#7C5CFC]/60 disabled:cursor-not-allowed text-white font-medium py-3.5 rounded-xl transition-colors shadow-sm shadow-[#7C5CFC]/30 active:scale-[0.98] flex items-center justify-center gap-2"
             >
-              Crear Cuenta
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Registrando...</span>
+                </>
+              ) : (
+                'Crear Cuenta'
+              )}
             </button>
           </form>
 
