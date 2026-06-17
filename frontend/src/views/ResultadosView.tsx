@@ -4,6 +4,7 @@ import Tag from "@/src/components/ui/Tag";
 import Card from "@/src/components/ui/Card";
 import ProgressBar from "@/src/components/ui/ProgressBar";
 import { useVocacional } from "@/src/hooks/useVocacional";
+import { toast } from "sonner";
 import {
   PieChart,
   Pie,
@@ -79,7 +80,7 @@ export default function ResultadosView() {
   ];
 
   const handleDownloadPDF = () => {
-    alert("Generando y descargando reporte de resultados en PDF...");
+    toast.info("Generando y descargando reporte de resultados en PDF...");
   };
 
   const handlePrint = () => {

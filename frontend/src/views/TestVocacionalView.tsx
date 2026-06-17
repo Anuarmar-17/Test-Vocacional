@@ -4,6 +4,7 @@ import Tag from "@/src/components/ui/Tag";
 import Card from "@/src/components/ui/Card";
 import ProgressBar from "@/src/components/ui/ProgressBar";
 import { useVocacional } from "@/src/hooks/useVocacional";
+import { toast } from "sonner";
 
 // Semantic normalizer to match the full area names in the JSON to the AREA ids in the application
 const getAreaKey = (areaName: string): string => {
@@ -24,17 +25,17 @@ export default function TestVocacionalView() {
   const [hoverPrev, setHoverPrev] = useState<boolean>(false);
   const [hoverNext, setHoverNext] = useState<boolean>(false);
   const [hasAutoNavigated, setHasAutoNavigated] = useState<boolean>(false);
-  
+
   const total = 80;
   const questionsPerBlock = 10;
   const totalBlocks = Math.ceil(total / questionsPerBlock); // 8 blocks of 10 questions
-  
+
   // Calculate answered count based on active answers matching IDs from 1 to 80
   const answered = Object.keys(testAnswers).filter(id => {
     const numId = Number(id);
     return numId >= 1 && numId <= 80 && testAnswers[numId];
   }).length;
-  
+
   const percent = Math.round((answered / total) * 100);
 
   // 1. Fetch real questions from public folder (preguntas.json)
@@ -73,7 +74,7 @@ export default function TestVocacionalView() {
       [questionId]: option,
     };
     setTestAnswers(newAnswers);
-    
+
     // Premium Auto-Advance after selecting an option
     if (currentQuestionIdx < total - 1) {
       setTimeout(() => {
@@ -85,7 +86,7 @@ export default function TestVocacionalView() {
 
   const handleSaveProgress = () => {
     saveTestAnswers(testAnswers);
-    alert("¡Tu avance en el test vocacional ha sido guardado en la base de datos!");
+    toast.success("¡Tu avance en el test vocacional ha sido guardado!");
   };
 
   const handleNextQuestion = () => {
@@ -95,14 +96,14 @@ export default function TestVocacionalView() {
     } else {
       // Last question! Check if there are unanswered questions
       if (answered < total) {
-        alert(
+        toast.error(
           `Has respondido ${answered} de ${total} preguntas. Por favor, responde todas las preguntas faltantes antes de finalizar.`
         );
         return;
       }
       // Save before showing results
       saveTestAnswers(testAnswers);
-      alert("¡Enhorabuena! Has respondido las 80 preguntas con éxito. Calculando tus resultados vocacionales...");
+      toast.success("¡Enhorabuena! Has respondido las 80 preguntas con éxito. Calculando tus resultados vocacionales...");
       setView("resultados");
     }
   };
@@ -154,7 +155,7 @@ export default function TestVocacionalView() {
             Responde con honestidad. No hay respuestas correctas o incorrectas.
           </p>
         </div>
-        
+
         {/* COUNTER CARD */}
         <Card
           style={{
@@ -204,9 +205,6 @@ export default function TestVocacionalView() {
               </Tag>
             ))}
           </div>
-          <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textMuted }}>
-            Bloque {currentBlock + 1} de {totalBlocks}
-          </span>
         </div>
       </Card>
 
@@ -216,7 +214,7 @@ export default function TestVocacionalView() {
         if (!q) return null;
         const areaKey = getAreaKey(q.area);
         const area = AREAS.find((a) => a.id === areaKey);
-        
+
         // Pad the question id to 2 digits to match the filenames "01.png", "02.png", ... "80.png"
         const imageId = String(q.id).padStart(2, "0");
         const imagePath = `/image/${imageId}.png`;
@@ -238,8 +236,8 @@ export default function TestVocacionalView() {
                 width: 44,
                 height: 44,
                 borderRadius: "50%",
-                background: currentQuestionIdx === 0 
-                  ? COLORS.surface 
+                background: currentQuestionIdx === 0
+                  ? COLORS.surface
                   : (hoverPrev ? COLORS.accentLight : COLORS.surface),
                 color: currentQuestionIdx === 0 ? COLORS.textLight : COLORS.accent,
                 border: `1.5px solid ${currentQuestionIdx === 0 ? COLORS.border : COLORS.accent}`,

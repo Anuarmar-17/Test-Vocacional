@@ -3,26 +3,17 @@ import { COLORS } from "@/src/constants/vocacional";
 import Tag from "@/src/components/ui/Tag";
 import Card from "@/src/components/ui/Card";
 import { useVocacional } from "@/src/hooks/useVocacional";
+import { toast } from "sonner";
 
 export default function AutoconocimientoView() {
   const { reflections, saveReflections } = useVocacional();
   const [tab, setTab] = useState<number>(0);
   const [localVals, setLocalVals] = useState<Record<string, string>>({});
-  const [editing, setEditing] = useState<Record<string, boolean>>({});
+  const [isEditing, setIsEditing] = useState(false);
 
   // Sync with global reflections on mount
   useEffect(() => {
     setLocalVals(reflections);
-  }, [reflections]);
-
-  // Initialize editing: false (read) if has answer, true (write) if empty
-  useEffect(() => {
-    const initialEditing: Record<string, boolean> = {};
-    for (let i = 0; i < 9; i++) {
-      const key = i.toString();
-      initialEditing[key] = !(reflections[key] && reflections[key].trim() !== "");
-    }
-    setEditing(initialEditing);
   }, [reflections]);
 
   const tabs = ["¿Quién soy?", "Mis valores", "Metas personales"];
@@ -46,7 +37,12 @@ export default function AutoconocimientoView() {
 
   const handleSave = () => {
     saveReflections(localVals);
-    alert("¡Reflexiones guardadas con éxito!");
+    setIsEditing(false);
+    toast.success("¡Reflexiones guardadas con éxito!");
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
   };
 
   return (
@@ -143,7 +139,6 @@ export default function AutoconocimientoView() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {questions[tab].map((q, i) => {
               const key = (tab * 3 + i).toString();
-              const isEditing = editing[key];
               return (
                 <div key={i}>
                   <label
@@ -157,7 +152,29 @@ export default function AutoconocimientoView() {
                   >
                     {q}
                   </label>
-                  {!isEditing ? (
+                  {isEditing ? (
+                    <textarea
+                      value={localVals[key] || ""}
+                      onChange={(e) =>
+                        setLocalVals((v) => ({ ...v, [key]: e.target.value }))
+                      }
+                      placeholder="Escribe tu reflexión aquí..."
+                      style={{
+                        width: "100%",
+                        minHeight: 80,
+                        borderRadius: 10,
+                        border: `1px solid ${COLORS.border}`,
+                        padding: 12,
+                        fontSize: 14,
+                        resize: "vertical",
+                        color: COLORS.text,
+                        fontFamily: "inherit",
+                        background: COLORS.bg,
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  ) : (
                     <div
                       style={{
                         width: "100%",
@@ -170,73 +187,9 @@ export default function AutoconocimientoView() {
                         background: "#F8F9FB",
                         boxSizing: "border-box",
                         whiteSpace: "pre-wrap",
-                        position: "relative",
                       }}
                     >
                       <span>{localVals[key] || ""}</span>
-                      <button
-                        onClick={() =>
-                          setEditing((prev) => ({ ...prev, [key]: true }))
-                        }
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          right: 8,
-                          background: "white",
-                          border: `1px solid ${COLORS.border}`,
-                          borderRadius: 6,
-                          padding: "4px 10px",
-                          fontSize: 12,
-                          color: COLORS.textMuted,
-                          cursor: "pointer",
-                        }}
-                      >
-                        Editar
-                      </button>
-                    </div>
-                  ) : (
-                    <div style={{ position: "relative" }}>
-                      <textarea
-                        value={localVals[key] || ""}
-                        onChange={(e) =>
-                          setLocalVals((v) => ({ ...v, [key]: e.target.value }))
-                        }
-                        placeholder="Escribe tu reflexión aquí..."
-                        style={{
-                          width: "100%",
-                          minHeight: 80,
-                          borderRadius: 10,
-                          border: `1px solid ${COLORS.border}`,
-                          padding: "12px 70px 12px 12px",
-                          fontSize: 14,
-                          resize: "vertical",
-                          color: COLORS.text,
-                          fontFamily: "inherit",
-                          background: COLORS.bg,
-                          outline: "none",
-                          boxSizing: "border-box",
-                        }}
-                      />
-                      <button
-                        onClick={() =>
-                          setEditing((prev) => ({ ...prev, [key]: false }))
-                        }
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          right: 8,
-                          background: COLORS.teal,
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: 6,
-                          padding: "4px 10px",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                      >
-                        Guardar
-                      </button>
                     </div>
                   )}
                 </div>
@@ -251,11 +204,11 @@ export default function AutoconocimientoView() {
             }}
           >
             <button
-              onClick={handleSave}
+              onClick={isEditing ? handleSave : handleEdit}
               style={{
-                background: COLORS.teal,
-                color: "#fff",
-                border: "none",
+                background: isEditing ? COLORS.teal : COLORS.surface,
+                color: isEditing ? "#fff" : COLORS.text,
+                border: isEditing ? "none" : `1px solid ${COLORS.border}`,
                 borderRadius: 10,
                 padding: "10px 24px",
                 fontSize: 14,
@@ -263,7 +216,7 @@ export default function AutoconocimientoView() {
                 cursor: "pointer",
               }}
             >
-              Guardar reflexiones
+              {isEditing ? "Guardar reflexiones" : "Editar reflexiones"}
             </button>
           </div>
         </Card>
