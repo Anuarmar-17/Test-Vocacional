@@ -112,3 +112,21 @@ export const MOCK_AREAS_DISTRIBUCION: AreaDistribucion[] = [
   { area: "Económica / Administrativa", porcentaje: 12, color: "#B06010", light: "#FDF5E8", cantidad: 30  },
   { area: "Ciencias de la Salud",       porcentaje: 10, color: "#5C2FA8", light: "#F0EAFB", cantidad: 24  },
 ];
+
+export interface AdminReflexion {
+  orden: number;
+  pregunta_texto: string;
+  respuesta: string | null;
+}
+
+export interface AdminProyectoVida {
+  vision: string | null;
+  meta_corto_plazo: string | null;
+  meta_mediano_plazo: string | null;
+  meta_largo_plazo: string | null;
+  tiene_claro_carrera: boolean | null;
+  conoce_requisitos: boolean | null;
+  investigo_financiamiento: boolean | null;
+  tiene_apoyo_familiar: boolean | null;
+  compromisos: string | null;
+}

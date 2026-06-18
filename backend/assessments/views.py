@@ -354,3 +354,43 @@ class AdminUsersView(BaseAuthAPIView):
             })
 
         return SuccessResponse(data=data)
+
+
+class AdminUserReflectionsView(BaseAuthAPIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, user_id):
+        usuario = self.get_usuario(request)
+        if not usuario or not usuario.is_admin:
+            return Response({'error': 'No autorizado'}, status=403)
+
+        reflexiones = ReflexionAutoconocimiento.objects.filter(
+            usuario_id=user_id
+        ).order_by('orden')
+
+        data = [
+            {
+                'orden': r.orden,
+                'pregunta_texto': r.pregunta_texto,
+                'respuesta': r.respuesta,
+            }
+            for r in reflexiones
+        ]
+
+        return SuccessResponse(data=data)
+
+
+class AdminUserLifeProjectView(BaseAuthAPIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, user_id):
+        usuario = self.get_usuario(request)
+        if not usuario or not usuario.is_admin:
+            return Response({'error': 'No autorizado'}, status=403)
+
+        try:
+            proyecto = ProyectoVida.objects.get(usuario_id=user_id)
+            serializer = ProyectoVidaSerializer(proyecto)
+            return SuccessResponse(data=serializer.data)
+        except ProyectoVida.DoesNotExist:
+            return SuccessResponse(data=None, message="No hay proyecto de vida")

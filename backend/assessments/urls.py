@@ -6,6 +6,8 @@ from .views import (
     ProyectoVidaView,
     AdminStatsView,
     AdminUsersView,
+    AdminUserReflectionsView,
+    AdminUserLifeProjectView,
 )
 
 urlpatterns = [
@@ -16,4 +18,6 @@ urlpatterns = [
     path('life-project/', ProyectoVidaView.as_view(), name='proyecto-vida'),
     path('admin/stats/', AdminStatsView.as_view(), name='admin-stats'),
     path('admin/users/', AdminUsersView.as_view(), name='admin-users'),
+    path('admin/users/<int:user_id>/reflections/', AdminUserReflectionsView.as_view(), name='admin-user-reflections'),
+    path('admin/users/<int:user_id>/life-project/', AdminUserLifeProjectView.as_view(), name='admin-user-life-project'),
 ]

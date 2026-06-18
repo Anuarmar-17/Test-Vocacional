@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 
 function timeAgo(iso: string): string {
   if (!iso) return "";
@@ -25,9 +25,23 @@ import Badge from "@/src/admin/components/ui/Badge";
 import Modal, { ModalActions } from "@/src/admin/components/ui/Modal";
 import BarChart from "@/src/admin/components/ui/Charts";
 import { useAdmin } from "@/src/admin/context/AdminContext";
-import { AdminUsuario, AREA_COLORS } from "@/src/admin/constants/adminData";
+import { AdminUsuario, AREA_COLORS, AdminReflexion, AdminProyectoVida } from "@/src/admin/constants/adminData";
+import { getAdminUserReflections, getAdminUserLifeProject } from "@/src/lib/api";
 
 type FiltroTest = "todos" | "completado" | "pendiente";
+type DetailTab = "perfil" | "autoconocimiento" | "proyecto_vida";
+
+const TABS: DetailTab[] = ["perfil", "autoconocimiento", "proyecto_vida"];
+const TAB_LABELS: Record<DetailTab, string> = {
+  perfil: "Perfil",
+  autoconocimiento: "Autoconocimiento",
+  proyecto_vida: "Proyecto de Vida",
+};
+const TAB_ICONS: Record<DetailTab, string> = {
+  perfil: "ti ti-user",
+  autoconocimiento: "ti ti-brain",
+  proyecto_vida: "ti ti-star",
+};
 
 export default function AdminUsuariosView() {
   const { usuarios } = useAdmin();
@@ -37,8 +51,26 @@ export default function AdminUsuariosView() {
   const [filtroTest, setFiltroTest]   = useState<FiltroTest>("todos");
   const [showDetail, setShowDetail]   = useState(false);
   const [selected, setSelected]       = useState<AdminUsuario | null>(null);
+  const [activeTab, setActiveTab]     = useState<DetailTab>("perfil");
+  const [reflections, setReflections] = useState<AdminReflexion[]>([]);
+  const [lifeProject, setLifeProject] = useState<AdminProyectoVida | null>(null);
+  const [loadingReflections, setLoadingReflections] = useState(false);
+  const [loadingLifeProject, setLoadingLifeProject] = useState(false);
+  const [hoverPrev, setHoverPrev] = useState(false);
+  const [hoverNext, setHoverNext] = useState(false);
+  const [reflectionTab, setReflectionTab] = useState(0);
 
   const AREAS = ["Arte y Creatividad", "Ciencias Sociales", "Económica / Administrativa", "Ciencia y Tecnología", "Ciencias de la Salud"];
+
+  const tabIndex = TABS.indexOf(activeTab);
+
+  function goPrev() {
+    if (tabIndex > 0) setActiveTab(TABS[tabIndex - 1]);
+  }
+
+  function goNext() {
+    if (tabIndex < TABS.length - 1) setActiveTab(TABS[tabIndex + 1]);
+  }
 
   // ── Filtered ──────────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -50,7 +82,31 @@ export default function AdminUsuariosView() {
     });
   }, [usuarios, search, filtroArea, filtroTest]);
 
-  function openDetail(u: AdminUsuario) { setSelected(u); setShowDetail(true); }
+  function openDetail(u: AdminUsuario) {
+    setSelected(u);
+    setActiveTab("perfil");
+    setReflections([]);
+    setLifeProject(null);
+    setShowDetail(true);
+  }
+
+  // Lazy load data when switching tabs
+  useEffect(() => {
+    if (activeTab === "autoconocimiento" && reflections.length === 0 && selected) {
+      setLoadingReflections(true);
+      getAdminUserReflections(selected.id).then((data) => {
+        setReflections(data ?? []);
+        setLoadingReflections(false);
+      });
+    }
+    if (activeTab === "proyecto_vida" && !lifeProject && selected) {
+      setLoadingLifeProject(true);
+      getAdminUserLifeProject(selected.id).then((data) => {
+        setLifeProject(data);
+        setLoadingLifeProject(false);
+      });
+    }
+  }, [activeTab, selected?.id]);
 
   const totalCompleted = usuarios.filter((u) => u.testCompletado).length;
 
@@ -189,9 +245,9 @@ export default function AdminUsuariosView() {
       </Card>
 
       {/* ── Modal: Detalle usuario ── */}
-      <Modal open={showDetail} onClose={() => setShowDetail(false)} title="Perfil del Usuario" width={520}>
+      <Modal open={showDetail} onClose={() => setShowDetail(false)} title="Perfil del Usuario" width={640}>
         {selected && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {/* Header */}
             <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: COLORS.accentMid, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, color: COLORS.accent, flexShrink: 0 }}>
@@ -206,47 +262,309 @@ export default function AdminUsuariosView() {
               </div>
             </div>
 
-            {/* Info grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[
-                { label: "Fecha de registro", value: formatDate(selected.fechaRegistro), icon: "ti-calendar" },
-                { label: "Última actividad",  value: timeAgo(selected.ultimaActividad), icon: "ti-clock" },
-                { label: "Preguntas respondidas", value: `${selected.preguntasRespondidas} / 80`, icon: "ti-help-circle" },
-                { label: "Área principal",    value: selected.areaPrincipal, icon: "ti-target" },
-              ].map((d) => (
-                <div key={d.label} style={{ background: COLORS.bg, borderRadius: 12, padding: "0.875rem 1rem", border: `1px solid ${COLORS.border}` }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                    <i className={`ti ${d.icon}`} style={{ fontSize: 13, color: COLORS.textLight }} />
-                    <p style={{ margin: 0, fontSize: 10.5, color: COLORS.textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".4px" }}>{d.label}</p>
-                  </div>
-                  <p style={{ margin: 0, fontSize: 13.5, fontWeight: 600, color: COLORS.text }}>{d.value}</p>
+            {/* Tab Navigation */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6, position: "relative" }}>
+              {/* Prev button */}
+              <button
+                onClick={goPrev}
+                disabled={tabIndex === 0}
+                onMouseEnter={() => setHoverPrev(true)}
+                onMouseLeave={() => setHoverPrev(false)}
+                style={{
+                  width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
+                  background: tabIndex === 0 ? COLORS.surface : (hoverPrev ? COLORS.accentLight : COLORS.surface),
+                  color: tabIndex === 0 ? COLORS.textLight : COLORS.accent,
+                  border: `1.5px solid ${tabIndex === 0 ? COLORS.border : COLORS.accent}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: tabIndex === 0 ? "not-allowed" : "pointer",
+                  opacity: tabIndex === 0 ? 0.3 : 1,
+                  transition: "all 0.2s ease",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+                }}
+                title="Anterior"
+              >
+                <i className="ti ti-chevron-left" style={{ fontSize: 15, fontWeight: 700 }} />
+              </button>
+
+              {/* Tab pills */}
+              {TABS.map((tab) => {
+                const isActive = activeTab === tab;
+                const tabColors: Record<DetailTab, string> = {
+                  perfil: COLORS.accent,
+                  autoconocimiento: COLORS.teal,
+                  proyecto_vida: COLORS.amber,
+                };
+                const c = tabColors[tab];
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    style={{
+                      flex: 1, padding: "8px 10px", borderRadius: 10, fontSize: 12, fontWeight: 600,
+                      fontFamily: "inherit", cursor: "pointer", whiteSpace: "nowrap",
+                      background: isActive ? `${c}14` : "transparent",
+                      color: isActive ? c : COLORS.textMuted,
+                      border: isActive ? `1.5px solid ${c}44` : `1px solid ${COLORS.border}`,
+                      transition: "all 0.15s",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+                    }}
+                  >
+                    <i className={TAB_ICONS[tab]} style={{ fontSize: 13 }} />
+                    {TAB_LABELS[tab]}
+                  </button>
+                );
+              })}
+
+              {/* Next button */}
+              <button
+                onClick={goNext}
+                disabled={tabIndex === TABS.length - 1}
+                onMouseEnter={() => setHoverNext(true)}
+                onMouseLeave={() => setHoverNext(false)}
+                style={{
+                  width: 34, height: 34, borderRadius: "50%", flexShrink: 0,
+                  background: tabIndex === TABS.length - 1 ? COLORS.surface : (hoverNext ? COLORS.accentLight : COLORS.surface),
+                  color: tabIndex === TABS.length - 1 ? COLORS.textLight : COLORS.accent,
+                  border: `1.5px solid ${tabIndex === TABS.length - 1 ? COLORS.border : COLORS.accent}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: tabIndex === TABS.length - 1 ? "not-allowed" : "pointer",
+                  opacity: tabIndex === TABS.length - 1 ? 0.3 : 1,
+                  transition: "all 0.2s ease",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+                }}
+                title="Siguiente"
+              >
+                <i className="ti ti-chevron-right" style={{ fontSize: 15, fontWeight: 700 }} />
+              </button>
+            </div>
+
+            {/* ── Tab Content ── */}
+            {activeTab === "perfil" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {/* Info grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {[
+                    { label: "Fecha de registro", value: formatDate(selected.fechaRegistro), icon: "ti-calendar" },
+                    { label: "Última actividad",  value: timeAgo(selected.ultimaActividad), icon: "ti-clock" },
+                    { label: "Preguntas respondidas", value: `${selected.preguntasRespondidas} / 80`, icon: "ti-help-circle" },
+                    { label: "Área principal",    value: selected.areaPrincipal, icon: "ti-target" },
+                  ].map((d) => (
+                    <div key={d.label} style={{ background: COLORS.bg, borderRadius: 12, padding: "0.875rem 1rem", border: `1px solid ${COLORS.border}` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                        <i className={`ti ${d.icon}`} style={{ fontSize: 13, color: COLORS.textLight }} />
+                        <p style={{ margin: 0, fontSize: 10.5, color: COLORS.textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".4px" }}>{d.label}</p>
+                      </div>
+                      <p style={{ margin: 0, fontSize: 13.5, fontWeight: 600, color: COLORS.text }}>{d.value}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            {/* Progress bar */}
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textMuted }}>Avance en el test vocacional</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: selected.testCompletado ? COLORS.teal : COLORS.accent }}>
-                  {Math.round((selected.preguntasRespondidas / 80) * 100)}%
-                </span>
-              </div>
-              <div style={{ height: 10, borderRadius: 99, background: COLORS.accentLight, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${Math.round((selected.preguntasRespondidas / 80) * 100)}%`, background: selected.testCompletado ? COLORS.teal : COLORS.accent, borderRadius: 99, transition: "width .6s" }} />
-              </div>
-            </div>
+                {/* Progress bar */}
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textMuted }}>Avance en el test vocacional</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: selected.testCompletado ? COLORS.teal : COLORS.accent }}>
+                      {Math.round((selected.preguntasRespondidas / 80) * 100)}%
+                    </span>
+                  </div>
+                  <div style={{ height: 10, borderRadius: 99, background: COLORS.accentLight, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${Math.round((selected.preguntasRespondidas / 80) * 100)}%`, background: selected.testCompletado ? COLORS.teal : COLORS.accent, borderRadius: 99, transition: "width .6s" }} />
+                  </div>
+                </div>
 
-            {/* Distribución de areas si test completado */}
-            {selected.testCompletado && selected.resultadosPorArea && Object.keys(selected.resultadosPorArea).length > 0 && (
+                {/* Distribución de areas si test completado */}
+                {selected.testCompletado && selected.resultadosPorArea && Object.keys(selected.resultadosPorArea).length > 0 && (
+                  <div>
+                    <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 600, color: COLORS.textMuted, textTransform: "uppercase", letterSpacing: ".4px" }}>Distribución de áreas (puntuación real)</p>
+                    <BarChart
+                      data={Object.entries(selected.resultadosPorArea).map(([area, puntos]) => {
+                        const colors = AREA_COLORS[area] || { color: "#6B7280", light: "#F3F4F6" };
+                        return { label: area, value: puntos, color: colors.color, light: colors.light };
+                      })}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "autoconocimiento" && (
               <div>
-                <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 600, color: COLORS.textMuted, textTransform: "uppercase", letterSpacing: ".4px" }}>Distribución de áreas (puntuación real)</p>
-                <BarChart
-                  data={Object.entries(selected.resultadosPorArea).map(([area, puntos]) => {
-                    const colors = AREA_COLORS[area] || { color: "#6B7280", light: "#F3F4F6" };
-                    return { label: area, value: puntos, color: colors.color, light: colors.light };
-                  })}
-                />
+                {loadingReflections ? (
+                  <p style={{ color: COLORS.textMuted, fontSize: 13 }}>Cargando respuestas...</p>
+                ) : reflections.length === 0 ? (
+                  <p style={{ color: COLORS.textLight, fontSize: 13 }}>Este usuario no ha registrado respuestas de autoconocimiento.</p>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 16 }}>
+                    {/* Sidebar tabs */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {["¿Quién soy?", "Mis valores", "Metas personales"].map((label, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setReflectionTab(i)}
+                          style={{
+                            background: reflectionTab === i ? COLORS.tealLight : "transparent",
+                            color: reflectionTab === i ? COLORS.teal : COLORS.textMuted,
+                            border: reflectionTab === i ? `1.5px solid ${COLORS.teal}33` : `1px solid ${COLORS.border}`,
+                            borderRadius: 12, padding: "11px 14px", fontSize: 13, fontWeight: reflectionTab === i ? 600 : 400,
+                            cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all .12s",
+                          }}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                      <div style={{ marginTop: 6, background: COLORS.accentLight, borderRadius: 12, border: `1px solid ${COLORS.accentMid}`, padding: "0.875rem" }}>
+                        <p style={{ margin: "0 0 4px", fontSize: 11.5, fontWeight: 600, color: COLORS.accent }}>
+                          <i className="ti ti-brain" style={{ marginRight: 5 }} />
+                          Inteligencia emocional
+                        </p>
+                        <p style={{ margin: 0, fontSize: 11, color: COLORS.textMuted, lineHeight: 1.5 }}>
+                          Reconocer tus emociones te ayuda a tomar mejores decisiones vocacionales.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Questions */}
+                    <div style={{ background: COLORS.bg, borderRadius: 14, border: `1px solid ${COLORS.border}`, padding: "1rem 1.25rem" }}>
+                      <p style={{ margin: "0 0 1rem", fontSize: 15, fontWeight: 600, color: COLORS.text }}>
+                        {["¿Quién soy?", "Mis valores", "Metas personales"][reflectionTab]}
+                      </p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                        {[
+                          ["¿Cuáles son tus principales fortalezas?", "¿Qué actividades te hacen perder la noción del tiempo?", "¿Cómo te describirías en 3 palabras?"],
+                          ["¿Qué es lo más importante para ti en la vida?", "¿Qué valores guían tus decisiones?", "¿Qué principios nunca comprometerías?"],
+                          ["¿Qué quieres lograr en los próximos 2 años?", "¿Cuál es tu sueño profesional?", "¿Qué obstáculos debes superar?"],
+                        ][reflectionTab].map((q, i) => {
+                          const r = reflections[reflectionTab * 3 + i];
+                          return (
+                            <div key={i}>
+                              <p style={{ margin: "0 0 6px", fontSize: 13.5, fontWeight: 500, color: COLORS.text }}>
+                                {q}
+                              </p>
+                              <div style={{
+                                width: "100%", minHeight: 64, borderRadius: 10, padding: "11px 13px", fontSize: 13.5,
+                                color: COLORS.text, background: COLORS.surface, boxSizing: "border-box", whiteSpace: "pre-wrap",
+                                border: `1px solid ${COLORS.border}`,
+                              }}>
+                                {r?.respuesta ? (
+                                  <span>{r.respuesta}</span>
+                                ) : (
+                                  <span style={{ color: COLORS.textLight, fontStyle: "italic" }}>Sin respuesta</span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "proyecto_vida" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: COLORS.textMuted }}>
+                  <i className="ti ti-star" style={{ marginRight: 6 }} />
+                  Proyecto de Vida
+                </p>
+                {loadingLifeProject ? (
+                  <p style={{ color: COLORS.textMuted, fontSize: 13 }}>Cargando proyecto de vida...</p>
+                ) : !lifeProject ? (
+                  <p style={{ color: COLORS.textLight, fontSize: 13 }}>Este usuario no ha registrado un proyecto de vida.</p>
+                ) : (
+                  <>
+                    {/* Visión */}
+                    <div style={{ background: COLORS.bg, borderRadius: 12, padding: "0.875rem 1rem", border: `1px solid ${COLORS.border}` }}>
+                      <p style={{ margin: "0 0 6px", fontSize: 12.5, fontWeight: 600, color: COLORS.text }}>
+                        <i className="ti ti-star" style={{ marginRight: 6, color: COLORS.amber }} />
+                        Mi visión personal
+                      </p>
+                      <div style={{
+                        width: "100%", minHeight: 48, borderRadius: 8, padding: 10, fontSize: 13,
+                        color: COLORS.text, background: COLORS.surface, boxSizing: "border-box", whiteSpace: "pre-wrap",
+                        border: `1px solid ${COLORS.border}`,
+                      }}>
+                        {lifeProject.vision || <span style={{ color: COLORS.textLight, fontStyle: "italic" }}>Sin respuesta</span>}
+                      </div>
+                    </div>
+
+                    {/* Metas */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                      {[
+                        { key: "meta_corto_plazo", label: "Corto plazo", desc: "Próximos 6 meses", color: COLORS.teal, icon: "ti-target" },
+                        { key: "meta_mediano_plazo", label: "Mediano plazo", desc: "1 a 3 años", color: COLORS.accent, icon: "ti-calendar" },
+                        { key: "meta_largo_plazo", label: "Largo plazo", desc: "5 años o más", color: COLORS.coral, icon: "ti-rocket" },
+                      ].map((m) => (
+                        <div key={m.key} style={{ background: COLORS.bg, borderRadius: 12, padding: "0.75rem", border: `1px solid ${COLORS.border}`, borderTop: `3px solid ${m.color}` }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                            <i className={`ti ${m.icon}`} style={{ fontSize: 14, color: m.color }} />
+                            <div>
+                              <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: m.color }}>{m.label}</p>
+                              <p style={{ margin: 0, fontSize: 10, color: COLORS.textMuted }}>{m.desc}</p>
+                            </div>
+                          </div>
+                          <div style={{
+                            width: "100%", minHeight: 48, borderRadius: 8, padding: 8, fontSize: 12,
+                            color: COLORS.text, background: COLORS.surface, boxSizing: "border-box", whiteSpace: "pre-wrap",
+                            border: `1px solid ${COLORS.border}`,
+                          }}>
+                            {(lifeProject as any)[m.key] || <span style={{ color: COLORS.textLight, fontStyle: "italic" }}>Sin respuesta</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Evaluación académica */}
+                    <div style={{ background: COLORS.bg, borderRadius: 12, padding: "0.875rem 1rem", border: `1px solid ${COLORS.border}` }}>
+                      <p style={{ margin: "0 0 8px", fontSize: 12.5, fontWeight: 600, color: COLORS.text }}>
+                        <i className="ti ti-books" style={{ marginRight: 6, color: COLORS.accent }} />
+                        Evaluación académica
+                      </p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        {[
+                          { key: "tiene_claro_carrera", label: "¿Tienes claro qué carrera quieres estudiar?" },
+                          { key: "conoce_requisitos", label: "¿Conoces los requisitos de admisión?" },
+                          { key: "investigo_financiamiento", label: "¿Has investigado opciones de financiamiento?" },
+                          { key: "tiene_apoyo_familiar", label: "¿Tienes el apoyo de tu familia?" },
+                        ].map((item) => {
+                          const val = (lifeProject as any)[item.key];
+                          const boolVal = val === true ? "Sí" : val === false ? "No" : null;
+                          return (
+                            <div key={item.key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${COLORS.border}` }}>
+                              <p style={{ margin: 0, fontSize: 13, color: COLORS.text, flex: 1 }}>{item.label}</p>
+                              {boolVal ? (
+                                <span style={{
+                                  fontSize: 12, fontWeight: 600, padding: "2px 12px", borderRadius: 6,
+                                  background: boolVal === "Sí" ? COLORS.tealLight : COLORS.coralLight,
+                                  color: boolVal === "Sí" ? COLORS.teal : COLORS.coral,
+                                }}>
+                                  {boolVal}
+                                </span>
+                              ) : (
+                                <span style={{ fontSize: 12, color: COLORS.textLight, fontStyle: "italic" }}>Sin respuesta</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Compromisos */}
+                    <div style={{ background: COLORS.accentLight, borderRadius: 12, padding: "0.875rem 1rem", border: `1px solid ${COLORS.accentMid}` }}>
+                      <p style={{ margin: "0 0 6px", fontSize: 12.5, fontWeight: 600, color: COLORS.accent }}>
+                        <i className="ti ti-writing" style={{ marginRight: 6 }} />
+                        Mis compromisos personales
+                      </p>
+                      <div style={{
+                        width: "100%", minHeight: 48, borderRadius: 8, padding: 10, fontSize: 13,
+                        color: COLORS.text, background: COLORS.surface, boxSizing: "border-box", whiteSpace: "pre-wrap",
+                        border: `1px solid ${COLORS.accentMid}`,
+                      }}>
+                        {lifeProject.compromisos || <span style={{ color: COLORS.textLight, fontStyle: "italic" }}>Sin respuesta</span>}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>

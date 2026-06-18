@@ -306,6 +306,28 @@ export async function getAdminUsers(): Promise<any[]> {
   return data.data ?? [];
 }
 
+export async function getAdminUserReflections(userId: number): Promise<any[]> {
+  const token = getAccessToken();
+  if (!token) return [];
+  const res = await fetch(`${API_URL}/admin/users/${userId}/reflections/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.data ?? [];
+}
+
+export async function getAdminUserLifeProject(userId: number): Promise<any> {
+  const token = getAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${API_URL}/admin/users/${userId}/life-project/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.data;
+}
+
 export async function getLifeProject(): Promise<any> {
   const token = getAccessToken();
   if (!token) return null;
