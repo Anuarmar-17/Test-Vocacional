@@ -293,6 +293,25 @@ class AdminUsersView(BaseAuthAPIView):
                         area_name = a.nombre
                         area_color = a.color
                         area_light = a.color_light or a.color + '20'
+                elif test_completado and r.datos:
+                    # Fallback: calcular área desde JSON datos si FK es NULL
+                    rpa = r.datos.get('resultados_por_area', {})
+                    if isinstance(rpa, dict):
+                        best = None
+                        best_puntos = -1
+                        for name, info in rpa.items():
+                            if isinstance(info, dict):
+                                p = info.get('puntos', 0)
+                                if p > best_puntos:
+                                    best_puntos = p
+                                    best = info
+                        if best and best.get('area_id'):
+                            aid = int(best['area_id'])
+                            a = areas_map.get(aid)
+                            if a:
+                                area_name = a.nombre
+                                area_color = a.color
+                                area_light = a.color_light or a.color + '20'
 
             data.append({
                 'id': u.id,
