@@ -268,6 +268,19 @@ class AdminUsersView(BaseAuthAPIView):
 
         areas_map = {a.id: a for a in Area.objects.all()}
 
+        def normalize_area_name(raw: str) -> str:
+            map_norm = {
+                "arte y creatividad": "Arte y Creatividad",
+                "ciencia y tecnología": "Ciencia y Tecnología",
+                "ciencia y tecnologia": "Ciencia y Tecnología",
+                "ciencias ecológicas, biológicas y de salud": "Ciencias de la Salud",
+                "ciencias ecologicas, biologicas y de salud": "Ciencias de la Salud",
+                "ciencias sociales": "Ciencias Sociales",
+                "económica, administrativa y financiera": "Económica / Administrativa",
+                "economica, administrativa y financiera": "Económica / Administrativa",
+            }
+            return map_norm.get(raw.lower().strip(), raw)
+
         data = []
         for u in users:
             r = results_map.get(u.id)
@@ -283,6 +296,8 @@ class AdminUsersView(BaseAuthAPIView):
                     )
                 )
             )
+
+            resultados_por_area = {}
 
             if r:
                 preg_respondidas = r.preguntas_respondidas
@@ -313,6 +328,17 @@ class AdminUsersView(BaseAuthAPIView):
                                 area_color = a.color
                                 area_light = a.color_light or a.color + '20'
 
+                # Extraer desglose completo de puntos por área para el modal
+                if test_completado and r.datos:
+                    rpa = r.datos.get('resultados_por_area', {})
+                    if isinstance(rpa, dict):
+                        for name, info in rpa.items():
+                            if isinstance(info, dict):
+                                puntos = info.get('puntos', 0)
+                                if puntos > 0:
+                                    normalized = normalize_area_name(name)
+                                    resultados_por_area[normalized] = puntos
+
             data.append({
                 'id': u.id,
                 'nombre': u.full_name,
@@ -324,6 +350,7 @@ class AdminUsersView(BaseAuthAPIView):
                 'areaColor': area_color,
                 'areaLight': area_light,
                 'ultimaActividad': ultima,
+                'resultadosPorArea': resultados_por_area,
             })
 
         return SuccessResponse(data=data)

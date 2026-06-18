@@ -25,7 +25,7 @@ import Badge from "@/src/admin/components/ui/Badge";
 import Modal, { ModalActions } from "@/src/admin/components/ui/Modal";
 import BarChart from "@/src/admin/components/ui/Charts";
 import { useAdmin } from "@/src/admin/context/AdminContext";
-import { AdminUsuario, MOCK_AREAS_DISTRIBUCION } from "@/src/admin/constants/adminData";
+import { AdminUsuario, AREA_COLORS } from "@/src/admin/constants/adminData";
 
 type FiltroTest = "todos" | "completado" | "pendiente";
 
@@ -238,11 +238,14 @@ export default function AdminUsuariosView() {
             </div>
 
             {/* Distribución de areas si test completado */}
-            {selected.testCompletado && (
+            {selected.testCompletado && selected.resultadosPorArea && Object.keys(selected.resultadosPorArea).length > 0 && (
               <div>
-                <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 600, color: COLORS.textMuted, textTransform: "uppercase", letterSpacing: ".4px" }}>Distribución de áreas (estimado)</p>
+                <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 600, color: COLORS.textMuted, textTransform: "uppercase", letterSpacing: ".4px" }}>Distribución de áreas (puntuación real)</p>
                 <BarChart
-                  data={MOCK_AREAS_DISTRIBUCION.map((a) => ({ label: a.area, value: a.cantidad, color: a.color, light: a.light }))}
+                  data={Object.entries(selected.resultadosPorArea).map(([area, puntos]) => {
+                    const colors = AREA_COLORS[area] || { color: "#6B7280", light: "#F3F4F6" };
+                    return { label: area, value: puntos, color: colors.color, light: colors.light };
+                  })}
                 />
               </div>
             )}

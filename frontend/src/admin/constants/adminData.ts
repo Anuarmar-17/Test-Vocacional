@@ -33,6 +33,7 @@ export interface AdminUsuario {
   areaColor: string;
   areaLight: string;
   ultimaActividad: string;
+  resultadosPorArea?: Record<string, number>;
 }
 
 export interface AdminStatistica {
