@@ -1,5 +1,5 @@
-import React from "react";
-import { COLORS, PROFESIONES } from "@/src/constants/vocacional";
+import React, { useState, useEffect } from "react";
+import { COLORS } from "@/src/constants/vocacional";
 import Tag from "@/src/components/ui/Tag";
 import Card from "@/src/components/ui/Card";
 import ProgressBar from "@/src/components/ui/ProgressBar";
@@ -13,8 +13,24 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+const AREA_ID_TO_LABEL: Record<string, string> = {
+  arte: "Arte y Creatividad",
+  social: "Ciencias Sociales",
+  economica: "Económica / Administrativa",
+  tecnologia: "Ciencia y Tecnología",
+  salud: "Ciencias de la Salud",
+};
+
 export default function ResultadosView() {
   const { dynamicAreas, answeredCount, resultadosAcumulados } = useVocacional();
+  const [profesionesData, setProfesionesData] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    fetch("/profesiones.json")
+      .then((res) => res.json())
+      .then((data) => setProfesionesData(data))
+      .catch(() => setProfesionesData([]));
+  }, []);
   
   if (answeredCount < 80) {
     return (
@@ -364,31 +380,34 @@ export default function ResultadosView() {
               Carreras recomendadas
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {(PROFESIONES[area.id] || ["Pendiente de configurar"]).map(
-                (p) => (
-                  <div
-                    key={p}
-                    style={{
-                      background: COLORS.bg,
-                      borderRadius: 8,
-                      padding: "8px 12px",
-                      fontSize: 13.5,
-                      color: COLORS.text,
-                      border: `1px solid ${COLORS.border}`,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <i
-                      className="ti ti-arrow-right"
-                      style={{ fontSize: 14, color: COLORS.textLight }}
-                      aria-hidden="true"
-                    />
-                    {p}
-                  </div>
-                )
-              )}
+              {(profesionesData
+                ? profesionesData
+                    .filter((p) => p.area === AREA_ID_TO_LABEL[area.id])
+                    .map((p) => p.nombre)
+                : ["Cargando..."]
+              ).map((p) => (
+                <div
+                  key={p}
+                  style={{
+                    background: COLORS.bg,
+                    borderRadius: 8,
+                    padding: "8px 12px",
+                    fontSize: 13.5,
+                    color: COLORS.text,
+                    border: `1px solid ${COLORS.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <i
+                    className="ti ti-arrow-right"
+                    style={{ fontSize: 14, color: COLORS.textLight }}
+                    aria-hidden="true"
+                  />
+                  {p}
+                </div>
+              ))}
             </div>
           </Card>
         ))}

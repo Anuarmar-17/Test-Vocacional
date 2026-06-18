@@ -81,6 +81,16 @@ export default function TestVocacionalView() {
         setCurrentQuestionIdx((prev) => prev + 1);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }, 300);
+    } else if (currentQuestionIdx === total - 1) {
+      const answeredCount = Object.keys(newAnswers).filter(id => {
+        const numId = Number(id);
+        return numId >= 1 && numId <= 80 && newAnswers[numId];
+      }).length;
+      if (answeredCount === total) {
+        saveTestAnswers(newAnswers);
+        toast.success("¡Enhorabuena! Has respondido las 80 preguntas con éxito. Calculando tus resultados vocacionales...");
+        setTimeout(() => setView("resultados"), 500);
+      }
     }
   };
 
