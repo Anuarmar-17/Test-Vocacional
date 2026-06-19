@@ -101,11 +101,11 @@ function buildEmptyResultados(): ResultadosAcumulados {
   };
 }
 
-export function VocacionalProvider({ children }: { children: ReactNode }) {
+export function VocacionalProvider({ children, initialUserName }: { children: ReactNode; initialUserName?: string }) {
   const { user, isAuthenticated } = useAuth();
   
   const [view, setView] = useState<string>("inicio");
-  const [userName, setUserName] = useState<string>("Estudiante");
+  const [userName, setUserName] = useState<string>(initialUserName || "Estudiante");
   const [isLoadingContext, setIsLoadingContext] = useState(true);
 
   const [reflections, setReflections] = useState<Record<string, string>>(INITIAL_REFLECTIONS);
