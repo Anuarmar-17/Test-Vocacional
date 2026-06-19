@@ -4,9 +4,16 @@ import Card from "@/src/components/ui/Card";
 import Tag from "@/src/components/ui/Tag";
 
 export default function InicioView() {
-  const [activeTab, setActiveTab] = useState<string>("inteligencia");
+  const [activeTab, setActiveTab] = useState<string>("sena");
 
   const topics = [
+    {
+      id: "sena",
+      label: "SENA",
+      icon: "ti-building",
+      color: COLORS.amber,
+      bg: COLORS.amberLight,
+    },
     {
       id: "inteligencia",
       label: "Inteligencia Emocional",
@@ -56,31 +63,86 @@ export default function InicioView() {
             background: "rgba(255, 255, 255, 0.08)",
           }}
         />
-        <Tag color="rgba(255, 255, 255, 0.9)" light="rgba(255, 255, 255, 0.2)">
-          Bienvenido a VocaTest
-        </Tag>
-        <h1
-          style={{
-            fontSize: 30,
-            fontWeight: 800,
-            margin: "12px 0 8px",
-            letterSpacing: "-0.6px",
-            lineHeight: 1.2,
-          }}
-        >
-          Tu Viaje de Descubrimiento Vocacional
-        </h1>
-        <p
-          style={{
-            margin: 0,
-            fontSize: 15,
-            color: "rgba(255, 255, 255, 0.85)",
-            maxWidth: 580,
-            lineHeight: 1.5,
-          }}
-        >
-          Para elegir con sabiduría la profesión ideal, primero debes comprenderte a ti mismo. Explora estos recursos educativos clave sobre el autoconocimiento y la madurez emocional.
-        </p>
+        {activeTab === "sena" ? (
+          <>
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSX6Gat1r36ATdBS7sTqqFH8TvIVPMkqsdLgw&s"
+              alt="SENA"
+              style={{
+                position: "absolute",
+                top: 20,
+                right: 20,
+                width: 80,
+                height: 80,
+                borderRadius: "50%",
+                border: "3px solid rgba(255,255,255,0.25)",
+              }}
+            />
+            <h1
+              style={{
+                fontSize: 30,
+                fontWeight: 800,
+                margin: "12px 0 4px",
+                letterSpacing: "-0.6px",
+                lineHeight: 1.2,
+              }}
+            >
+              SENA
+            </h1>
+            <Tag color="rgba(255, 255, 255, 0.9)" light="rgba(255, 255, 255, 0.2)">
+              Servicio Nacional de Aprendizaje
+            </Tag>
+            <p
+              style={{
+                margin: "8px 0 0",
+                fontSize: 16,
+                color: "rgba(255, 255, 255, 0.75)",
+                fontWeight: 500,
+              }}
+            >
+              Tu puerta de entrada a la formación profesional gratuita en Colombia
+            </p>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 15,
+                color: "rgba(255, 255, 255, 0.85)",
+                maxWidth: 580,
+                lineHeight: 1.5,
+              }}
+            >
+              El SENA ofrece programas técnicos, tecnólogos y cursos complementarios que te preparan con competencias reales para el mundo laboral. Explora las opciones de formación alineadas a tu perfil vocacional.
+            </p>
+          </>
+        ) : (
+          <>
+            <Tag color="rgba(255, 255, 255, 0.9)" light="rgba(255, 255, 255, 0.2)">
+              Bienvenido a VocaTest
+            </Tag>
+            <h1
+              style={{
+                fontSize: 30,
+                fontWeight: 800,
+                margin: "12px 0 8px",
+                letterSpacing: "-0.6px",
+                lineHeight: 1.2,
+              }}
+            >
+              Tu Viaje de Descubrimiento Vocacional
+            </h1>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 15,
+                color: "rgba(255, 255, 255, 0.85)",
+                maxWidth: 580,
+                lineHeight: 1.5,
+              }}
+            >
+              Para elegir con sabiduría la profesión ideal, primero debes comprenderte a ti mismo. Explora estos recursos educativos clave sobre el autoconocimiento y la madurez emocional.
+            </p>
+          </>
+        )}
       </div>
 
       {/* Tabs navigation */}
@@ -123,6 +185,69 @@ export default function InicioView() {
 
       {/* Educational content cards */}
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        {activeTab === "sena" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <Card>
+              <h2
+                style={{
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: COLORS.text,
+                  marginBottom: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <i className="ti ti-building" style={{ color: COLORS.amber }} />
+                ¿Qué es el SENA?
+              </h2>
+              <p
+                style={{
+                  fontSize: 14.5,
+                  color: COLORS.textMuted,
+                  lineHeight: 1.6,
+                  margin: 0,
+                }}
+              >
+                El Servicio Nacional de Aprendizaje (SENA) es la institución de formación profesional más importante de Colombia. Ofrece programas técnicos, tecnólogos y cursos complementarios gratuitos que preparan a los estudiantes para insertarse en el mundo laboral con competencias reales y certificadas por el Estado.
+              </p>
+            </Card>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <Card style={{ borderLeft: `4px solid ${COLORS.amber}` }}>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: COLORS.text, margin: "0 0 8px" }}>
+                  Formación Titulada
+                </h3>
+                <p style={{ fontSize: 13.5, color: COLORS.textMuted, lineHeight: 1.5, margin: 0 }}>
+                  Programas de formación técnica y tecnológica con una duración de 12 a 36 meses. Incluyen etapa lectiva y productiva, otorgando títulos con validez oficial en todo el territorio nacional.
+                </p>
+              </Card>
+
+              <Card style={{ borderLeft: `4px solid ${COLORS.accent}` }}>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: COLORS.text, margin: "0 0 8px" }}>
+                  Formación Complementaria
+                </h3>
+                <p style={{ fontSize: 13.5, color: COLORS.textMuted, lineHeight: 1.5, margin: 0 }}>
+                  Cursos cortos virtuales y presenciales para fortalecer habilidades específicas. Ideales para complementar tu perfil profesional mientras estudias o trabajas.
+                </p>
+              </Card>
+            </div>
+
+            <Card style={{ background: COLORS.amberLight, border: `1px solid ${COLORS.amber}22` }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: COLORS.amber, margin: "0 0 8px" }}>
+                Programas alineados a tu perfil vocacional
+              </h3>
+              <ol style={{ paddingLeft: 20, margin: 0, fontSize: 14, color: COLORS.textMuted, lineHeight: 1.6 }}>
+                <li><strong>Análisis y Desarrollo de Software (ADSI):</strong> Ideal si te apasiona la tecnología, la lógica y crear soluciones digitales.</li>
+                <li><strong>Producción Multimedia:</strong> Perfecto si tu talento está en el diseño, la comunicación visual y los contenidos digitales.</li>
+                <li><strong>Gestión Empresarial:</strong> Recomendado si tienes habilidades organizativas, liderazgo e interés en administrar proyectos.</li>
+                <li><strong>Procesos Industriales:</strong> Para quienes disfrutan el trabajo práctico, la manufactura y la optimización de sistemas de producción.</li>
+              </ol>
+            </Card>
+          </div>
+        )}
+
         {activeTab === "inteligencia" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <Card>
