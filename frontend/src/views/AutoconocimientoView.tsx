@@ -6,10 +6,22 @@ import { useVocacional } from "@/src/hooks/useVocacional";
 import { toast } from "sonner";
 
 export default function AutoconocimientoView() {
-  const { reflections, saveReflections } = useVocacional();
+  const { reflections, saveReflections, isLoadingContext } = useVocacional();
   const [tab, setTab] = useState<number>(0);
   const [localVals, setLocalVals] = useState<Record<string, string>>({});
   const [isEditing, setIsEditing] = useState(false);
+
+  // Auto-enable editing if no answers saved yet
+  useEffect(() => {
+    if (!isLoadingContext) {
+      const hasAnyAnswer = Object.values(reflections).some(
+        (v) => v && v.trim() !== ""
+      );
+      if (!hasAnyAnswer) {
+        setIsEditing(true);
+      }
+    }
+  }, [isLoadingContext, reflections]);
 
   // Sync with global reflections on mount
   useEffect(() => {
@@ -189,7 +201,16 @@ export default function AutoconocimientoView() {
                         whiteSpace: "pre-wrap",
                       }}
                     >
-                      <span>{localVals[key] || ""}</span>
+                      <span
+                          style={{
+                            color: localVals[key]
+                              ? COLORS.text
+                              : COLORS.textMuted,
+                            fontStyle: localVals[key] ? "normal" : "italic",
+                          }}
+                        >
+                          {localVals[key] || "Escribe tu reflexión aquí..."}
+                        </span>
                     </div>
                   )}
                 </div>

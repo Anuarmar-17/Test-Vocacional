@@ -6,9 +6,21 @@ import { useVocacional } from "@/src/hooks/useVocacional";
 import { toast } from "sonner";
 
 export default function ProyectoVidaView() {
-  const { lifeProject, saveLifeProject } = useVocacional();
+  const { lifeProject, saveLifeProject, isLoadingContext } = useVocacional();
   const [localVals, setLocalVals] = useState<Record<string, string>>({});
   const [isEditing, setIsEditing] = useState(false);
+
+  // Auto-enable editing if no answers saved yet
+  useEffect(() => {
+    if (!isLoadingContext) {
+      const hasAnyAnswer = Object.values(lifeProject).some(
+        (v) => v && v.trim() !== ""
+      );
+      if (!hasAnyAnswer) {
+        setIsEditing(true);
+      }
+    }
+  }, [isLoadingContext, lifeProject]);
 
   // Sync with global context state on mount
   useEffect(() => {
@@ -136,7 +148,15 @@ export default function ProyectoVidaView() {
               whiteSpace: "pre-wrap",
             }}
           >
-            <span>{localVals.vision || ""}</span>
+            <span
+              style={{
+                color: localVals.vision ? COLORS.text : COLORS.textMuted,
+                fontStyle: localVals.vision ? "normal" : "italic",
+              }}
+            >
+              {localVals.vision ||
+                "Describe cómo te imaginas en el futuro: quién quieres ser, qué quieres lograr y cómo quieres que te recuerden..."}
+            </span>
           </div>
         )}
       </Card>
@@ -221,7 +241,14 @@ export default function ProyectoVidaView() {
                   whiteSpace: "pre-wrap",
                 }}
               >
-                <span>{localVals[m.id] || ""}</span>
+                <span
+                  style={{
+                    color: localVals[m.id] ? COLORS.text : COLORS.textMuted,
+                    fontStyle: localVals[m.id] ? "normal" : "italic",
+                  }}
+                >
+                  {localVals[m.id] || "Escribe tus metas..."}
+                </span>
               </div>
             )}
           </Card>
@@ -360,7 +387,15 @@ export default function ProyectoVidaView() {
               whiteSpace: "pre-wrap",
             }}
           >
-            <span>{localVals.compromisos || ""}</span>
+            <span
+            style={{
+              color: localVals.compromisos ? COLORS.text : COLORS.textMuted,
+              fontStyle: localVals.compromisos ? "normal" : "italic",
+            }}
+          >
+            {localVals.compromisos ||
+              "¿A qué te comprometes para lograr tus metas? Escribe acciones concretas y fechas..."}
+          </span>
           </div>
         )}
       </Card>
