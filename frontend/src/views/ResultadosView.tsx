@@ -108,7 +108,7 @@ export default function ResultadosView() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
+          gridTemplateColumns: "1fr 1fr",
           gap: 24,
           alignItems: "start",
         }}
@@ -320,10 +320,10 @@ export default function ResultadosView() {
           </Card>
         </div>
 
-        {/* Column 2: primary area careers */}
+        {/* Column 2: careers + buttons */}
         <div>
           {/* Primary area careers */}
-          <Card key={top.id}>
+          <Card key={top.id} style={{ marginBottom: "1.5rem" }}>
             <div
               style={{
                 display: "flex",
@@ -383,7 +383,7 @@ export default function ResultadosView() {
             >
               Carreras recomendadas
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               {(profesionesData
                 ? profesionesData
                     .filter((p) => p.area === AREA_ID_TO_LABEL[top.id])
@@ -414,10 +414,7 @@ export default function ResultadosView() {
               ))}
             </div>
           </Card>
-        </div>
 
-        {/* Column 3: buttons + secondary area careers */}
-        <div>
           {/* Action buttons */}
           <div
             style={{
@@ -536,7 +533,7 @@ export default function ResultadosView() {
             >
               Carreras recomendadas
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               {(profesionesData
                 ? profesionesData
                     .filter((p) => p.area === AREA_ID_TO_LABEL[second.id])
