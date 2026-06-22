@@ -320,101 +320,8 @@ export default function ResultadosView() {
           </Card>
         </div>
 
-        {/* Column 2: careers + buttons */}
+        {/* Column 2: buttons + areas grid */}
         <div>
-          {/* Primary area careers */}
-          <Card key={top.id} style={{ marginBottom: "1.5rem" }}>
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                marginBottom: 14,
-              }}
-            >
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  background: COLORS.accentLight,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <i
-                  className="ti ti-school"
-                  style={{ fontSize: 16, color: COLORS.accent }}
-                  aria-hidden="true"
-                />
-              </div>
-              <div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontWeight: 600,
-                    fontSize: 14,
-                    color: COLORS.text,
-                  }}
-                >
-                  {top.label}
-                </p>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 11.5,
-                    color: COLORS.textMuted,
-                  }}
-                >
-                  Área principal
-                </p>
-              </div>
-            </div>
-            <p
-              style={{
-                margin: "0 0 10px",
-                fontSize: 11.5,
-                fontWeight: 600,
-                color: COLORS.textMuted,
-                textTransform: "uppercase",
-                letterSpacing: ".4px",
-              }}
-            >
-              Carreras recomendadas
-            </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-              {(profesionesData
-                ? profesionesData
-                    .filter((p) => p.area === AREA_ID_TO_LABEL[top.id])
-                    .map((p) => p.nombre)
-                : ["Cargando..."]
-              ).map((p) => (
-                <div
-                  key={p}
-                  style={{
-                    background: COLORS.bg,
-                    borderRadius: 8,
-                    padding: "8px 12px",
-                    fontSize: 13.5,
-                    color: COLORS.text,
-                    border: `1px solid ${COLORS.border}`,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <i
-                    className="ti ti-arrow-right"
-                    style={{ fontSize: 14, color: COLORS.textLight }}
-                    aria-hidden="true"
-                  />
-                  {p}
-                </div>
-              ))}
-            </div>
-          </Card>
-
           {/* Action buttons */}
           <div
             style={{
@@ -472,98 +379,194 @@ export default function ResultadosView() {
             </button>
           </div>
 
-          {/* Secondary area careers */}
-          <Card key={second.id}>
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                marginBottom: 14,
-              }}
-            >
+          {/* Areas grid 2 columnas */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            {/* Primary area careers */}
+            <Card key={top.id}>
               <div
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  background: COLORS.accentLight,
                   display: "flex",
+                  gap: 10,
                   alignItems: "center",
-                  justifyContent: "center",
+                  marginBottom: 14,
                 }}
               >
-                <i
-                  className="ti ti-school"
-                  style={{ fontSize: 16, color: COLORS.accent }}
-                  aria-hidden="true"
-                />
-              </div>
-              <div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontWeight: 600,
-                    fontSize: 14,
-                    color: COLORS.text,
-                  }}
-                >
-                  {second.label}
-                </p>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 11.5,
-                    color: COLORS.textMuted,
-                  }}
-                >
-                  Área secundaria
-                </p>
-              </div>
-            </div>
-            <p
-              style={{
-                margin: "0 0 10px",
-                fontSize: 11.5,
-                fontWeight: 600,
-                color: COLORS.textMuted,
-                textTransform: "uppercase",
-                letterSpacing: ".4px",
-              }}
-            >
-              Carreras recomendadas
-            </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-              {(profesionesData
-                ? profesionesData
-                    .filter((p) => p.area === AREA_ID_TO_LABEL[second.id])
-                    .map((p) => p.nombre)
-                : ["Cargando..."]
-              ).map((p) => (
                 <div
-                  key={p}
                   style={{
-                    background: COLORS.bg,
+                    width: 32,
+                    height: 32,
                     borderRadius: 8,
-                    padding: "8px 12px",
-                    fontSize: 13.5,
-                    color: COLORS.text,
-                    border: `1px solid ${COLORS.border}`,
+                    background: COLORS.accentLight,
                     display: "flex",
                     alignItems: "center",
-                    gap: 8,
+                    justifyContent: "center",
                   }}
                 >
                   <i
-                    className="ti ti-arrow-right"
-                    style={{ fontSize: 14, color: COLORS.textLight }}
+                    className="ti ti-school"
+                    style={{ fontSize: 16, color: COLORS.accent }}
                     aria-hidden="true"
                   />
-                  {p}
                 </div>
-              ))}
-            </div>
-          </Card>
+                <div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontWeight: 600,
+                      fontSize: 14,
+                      color: COLORS.text,
+                    }}
+                  >
+                    {top.label}
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 11.5,
+                      color: COLORS.textMuted,
+                    }}
+                  >
+                    Área principal
+                  </p>
+                </div>
+              </div>
+              <p
+                style={{
+                  margin: "0 0 10px",
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  color: COLORS.textMuted,
+                  textTransform: "uppercase",
+                  letterSpacing: ".4px",
+                }}
+              >
+                Carreras recomendadas
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {(profesionesData
+                  ? profesionesData
+                      .filter((p) => p.area === AREA_ID_TO_LABEL[top.id])
+                      .map((p) => p.nombre)
+                  : ["Cargando..."]
+                ).map((p) => (
+                  <div
+                    key={p}
+                    style={{
+                      background: COLORS.bg,
+                      borderRadius: 8,
+                      padding: "8px 12px",
+                      fontSize: 13.5,
+                      color: COLORS.text,
+                      border: `1px solid ${COLORS.border}`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <i
+                      className="ti ti-arrow-right"
+                      style={{ fontSize: 14, color: COLORS.textLight }}
+                      aria-hidden="true"
+                    />
+                    {p}
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Secondary area careers */}
+            <Card key={second.id}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                  marginBottom: 14,
+                }}
+              >
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    background: COLORS.accentLight,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <i
+                    className="ti ti-school"
+                    style={{ fontSize: 16, color: COLORS.accent }}
+                    aria-hidden="true"
+                  />
+                </div>
+                <div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontWeight: 600,
+                      fontSize: 14,
+                      color: COLORS.text,
+                    }}
+                  >
+                    {second.label}
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 11.5,
+                      color: COLORS.textMuted,
+                    }}
+                  >
+                    Área secundaria
+                  </p>
+                </div>
+              </div>
+              <p
+                style={{
+                  margin: "0 0 10px",
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  color: COLORS.textMuted,
+                  textTransform: "uppercase",
+                  letterSpacing: ".4px",
+                }}
+              >
+                Carreras recomendadas
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {(profesionesData
+                  ? profesionesData
+                      .filter((p) => p.area === AREA_ID_TO_LABEL[second.id])
+                      .map((p) => p.nombre)
+                  : ["Cargando..."]
+                ).map((p) => (
+                  <div
+                    key={p}
+                    style={{
+                      background: COLORS.bg,
+                      borderRadius: 8,
+                      padding: "8px 12px",
+                      fontSize: 13.5,
+                      color: COLORS.text,
+                      border: `1px solid ${COLORS.border}`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <i
+                      className="ti ti-arrow-right"
+                      style={{ fontSize: 14, color: COLORS.textLight }}
+                      aria-hidden="true"
+                    />
+                    {p}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
