@@ -104,11 +104,11 @@ export default function ResultadosView() {
   };
 
   return (
-    <div style={{ padding: "2rem 2.5rem", maxWidth: 1200, margin: "0 auto" }}>
+    <div style={{ padding: "2rem 2.5rem", maxWidth: 1600, margin: "0 auto" }}>
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "1fr 1fr 1fr",
           gap: 24,
           alignItems: "start",
         }}
@@ -320,7 +320,103 @@ export default function ResultadosView() {
           </Card>
         </div>
 
-        {/* Right column: buttons + career recommendations */}
+        {/* Column 2: primary area careers */}
+        <div>
+          {/* Primary area careers */}
+          <Card key={top.id}>
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                marginBottom: 14,
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  background: COLORS.accentLight,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <i
+                  className="ti ti-school"
+                  style={{ fontSize: 16, color: COLORS.accent }}
+                  aria-hidden="true"
+                />
+              </div>
+              <div>
+                <p
+                  style={{
+                    margin: 0,
+                    fontWeight: 600,
+                    fontSize: 14,
+                    color: COLORS.text,
+                  }}
+                >
+                  {top.label}
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 11.5,
+                    color: COLORS.textMuted,
+                  }}
+                >
+                  Área principal
+                </p>
+              </div>
+            </div>
+            <p
+              style={{
+                margin: "0 0 10px",
+                fontSize: 11.5,
+                fontWeight: 600,
+                color: COLORS.textMuted,
+                textTransform: "uppercase",
+                letterSpacing: ".4px",
+              }}
+            >
+              Carreras recomendadas
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {(profesionesData
+                ? profesionesData
+                    .filter((p) => p.area === AREA_ID_TO_LABEL[top.id])
+                    .map((p) => p.nombre)
+                : ["Cargando..."]
+              ).map((p) => (
+                <div
+                  key={p}
+                  style={{
+                    background: COLORS.bg,
+                    borderRadius: 8,
+                    padding: "8px 12px",
+                    fontSize: 13.5,
+                    color: COLORS.text,
+                    border: `1px solid ${COLORS.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <i
+                    className="ti ti-arrow-right"
+                    style={{ fontSize: 14, color: COLORS.textLight }}
+                    aria-hidden="true"
+                  />
+                  {p}
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Column 3: buttons + secondary area careers */}
         <div>
           {/* Action buttons */}
           <div
@@ -379,102 +475,98 @@ export default function ResultadosView() {
             </button>
           </div>
 
-          {/* Career recommendations stacked */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {[top, second].map((area, idx) => (
-              <Card key={area.id}>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    alignItems: "center",
-                    marginBottom: 14,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 8,
-                      background: COLORS.accentLight,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <i
-                      className="ti ti-school"
-                      style={{ fontSize: 16, color: COLORS.accent }}
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <div>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontWeight: 600,
-                        fontSize: 14,
-                        color: COLORS.text,
-                      }}
-                    >
-                      {area.label}
-                    </p>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: 11.5,
-                        color: COLORS.textMuted,
-                      }}
-                    >
-                      {idx === 0 ? "Área principal" : "Área secundaria"}
-                    </p>
-                  </div>
-                </div>
+          {/* Secondary area careers */}
+          <Card key={second.id}>
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                marginBottom: 14,
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  background: COLORS.accentLight,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <i
+                  className="ti ti-school"
+                  style={{ fontSize: 16, color: COLORS.accent }}
+                  aria-hidden="true"
+                />
+              </div>
+              <div>
                 <p
                   style={{
-                    margin: "0 0 10px",
-                    fontSize: 11.5,
+                    margin: 0,
                     fontWeight: 600,
-                    color: COLORS.textMuted,
-                    textTransform: "uppercase",
-                    letterSpacing: ".4px",
+                    fontSize: 14,
+                    color: COLORS.text,
                   }}
                 >
-                  Carreras recomendadas
+                  {second.label}
                 </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {(profesionesData
-                    ? profesionesData
-                        .filter((p) => p.area === AREA_ID_TO_LABEL[area.id])
-                        .map((p) => p.nombre)
-                    : ["Cargando..."]
-                  ).map((p) => (
-                    <div
-                      key={p}
-                      style={{
-                        background: COLORS.bg,
-                        borderRadius: 8,
-                        padding: "8px 12px",
-                        fontSize: 13.5,
-                        color: COLORS.text,
-                        border: `1px solid ${COLORS.border}`,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                      }}
-                    >
-                      <i
-                        className="ti ti-arrow-right"
-                        style={{ fontSize: 14, color: COLORS.textLight }}
-                        aria-hidden="true"
-                      />
-                      {p}
-                    </div>
-                  ))}
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 11.5,
+                    color: COLORS.textMuted,
+                  }}
+                >
+                  Área secundaria
+                </p>
+              </div>
+            </div>
+            <p
+              style={{
+                margin: "0 0 10px",
+                fontSize: 11.5,
+                fontWeight: 600,
+                color: COLORS.textMuted,
+                textTransform: "uppercase",
+                letterSpacing: ".4px",
+              }}
+            >
+              Carreras recomendadas
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {(profesionesData
+                ? profesionesData
+                    .filter((p) => p.area === AREA_ID_TO_LABEL[second.id])
+                    .map((p) => p.nombre)
+                : ["Cargando..."]
+              ).map((p) => (
+                <div
+                  key={p}
+                  style={{
+                    background: COLORS.bg,
+                    borderRadius: 8,
+                    padding: "8px 12px",
+                    fontSize: 13.5,
+                    color: COLORS.text,
+                    border: `1px solid ${COLORS.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <i
+                    className="ti ti-arrow-right"
+                    style={{ fontSize: 14, color: COLORS.textLight }}
+                    aria-hidden="true"
+                  />
+                  {p}
                 </div>
-              </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
     </div>
