@@ -8,6 +8,7 @@ from .views import (
     AdminUsersView,
     AdminUserReflectionsView,
     AdminUserLifeProjectView,
+    AdminConfigRegistrationView,
 )
 
 urlpatterns = [
@@ -20,4 +21,5 @@ urlpatterns = [
     path('admin/users/', AdminUsersView.as_view(), name='admin-users'),
     path('admin/users/<int:user_id>/reflections/', AdminUserReflectionsView.as_view(), name='admin-user-reflections'),
     path('admin/users/<int:user_id>/life-project/', AdminUserLifeProjectView.as_view(), name='admin-user-life-project'),
+    path('admin/config/registration/', AdminConfigRegistrationView.as_view(), name='admin-config-registration'),
 ]

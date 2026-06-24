@@ -8,7 +8,8 @@ import {
   AREA_COLORS,
   normalizeAreaName,
 } from "@/src/admin/constants/adminData";
-import { getAdminUsers } from "@/src/lib/api";
+import { getAdminUsers, getAdminConfigRegistration, setAdminConfigRegistration } from "@/src/lib/api";
+import { toast } from "sonner";
 
 export type AdminView = "overview" | "preguntas" | "profesiones" | "usuarios";
 
@@ -35,6 +36,10 @@ export interface AdminContextType {
 
   // Usuarios (read-only in admin)
   usuarios: AdminUsuario[];
+
+  // Configuración de registro
+  registrationEnabled: boolean;
+  toggleRegistration: () => Promise<void>;
 
   // Refresh from JSON
   loading: boolean;
@@ -77,6 +82,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [preguntas, setPreguntas] = useState<AdminPregunta[]>([]);
   const [profesiones, setProfesiones] = useState<AdminProfesion[]>([]);
   const [usuarios, setUsuarios] = useState<AdminUsuario[]>([]);
+  const [registrationEnabled, setRegistrationEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -100,6 +106,9 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         if (users && users.length > 0) {
           setUsuarios(users);
         }
+
+        const isRegEnabled = await getAdminConfigRegistration();
+        setRegistrationEnabled(isRegEnabled);
       } catch {
         // fallback empty arrays
       } finally {
@@ -154,6 +163,18 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  // ── Config ───────────────────────────────────────────────────────────────
+  const toggleRegistration = async () => {
+    const newState = !registrationEnabled;
+    const success = await setAdminConfigRegistration(newState);
+    if (success) {
+      setRegistrationEnabled(newState);
+      toast.success(`Registro de usuarios ${newState ? "abierto" : "cerrado"}`);
+    } else {
+      toast.error("Hubo un error al cambiar el estado del registro");
+    }
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -172,6 +193,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         deleteProfesion,
         toggleProfesionActiva,
         usuarios,
+        registrationEnabled,
+        toggleRegistration,
         loading,
       }}
     >

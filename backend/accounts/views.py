@@ -86,6 +86,13 @@ def register_view(request):
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    config_user = Usuario.objects.filter(correo='config_registro@sistema.com').first()
+    if config_user and not config_user.activo:
+        return Response(
+            {'error': 'El registro de usuarios está temporalmente deshabilitado.'},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
     if Usuario.objects.filter(correo=serializer.validated_data['correo'].lower()).exists():
         return Response(
             {'error': 'El correo ya está registrado.'},

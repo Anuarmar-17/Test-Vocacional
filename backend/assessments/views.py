@@ -6,6 +6,7 @@ from .models import Area, Resultado, ReflexionAutoconocimiento, ProyectoVida
 from .serializers import ResultadoSerializer, ReflexionSerializer, ProyectoVidaSerializer
 from accounts.models import Usuario
 from core.responses import SuccessResponse, ErrorResponse
+import uuid
 
 # We extract user directly from request.user (which is accounts.Usuario because of JWT)
 # Wait, JWT token returns the `id` of Usuario. In `accounts/views.py`, the token `user_id` is the ID of the Usuario!
@@ -394,3 +395,44 @@ class AdminUserLifeProjectView(BaseAuthAPIView):
             return SuccessResponse(data=serializer.data)
         except ProyectoVida.DoesNotExist:
             return SuccessResponse(data=None, message="No hay proyecto de vida")
+
+class AdminConfigRegistrationView(BaseAuthAPIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        usuario = self.get_usuario(request)
+        if not usuario or not usuario.is_admin:
+            return Response({'error': 'No autorizado'}, status=403)
+            
+        config_user = Usuario.objects.filter(correo='config_registro@sistema.com').first()
+        enabled = True
+        if config_user and not config_user.activo:
+            enabled = False
+            
+        return SuccessResponse(data={'registrationEnabled': enabled})
+
+    def patch(self, request):
+        usuario = self.get_usuario(request)
+        if not usuario or not usuario.is_admin:
+            return Response({'error': 'No autorizado'}, status=403)
+            
+        config_user = Usuario.objects.filter(correo='config_registro@sistema.com').first()
+        
+        enabled = request.data.get('registrationEnabled', True)
+        
+        if config_user:
+            config_user.activo = enabled
+            config_user.save()
+        else:
+            # Create the virtual user if it doesn't exist
+            Usuario.objects.create(
+                nombre='Config',
+                apellido='Registro',
+                correo='config_registro@sistema.com',
+                password_hash='*',
+                rol_id=2,
+                activo=enabled,
+                session_id=str(uuid.uuid4())
+            )
+            
+        return SuccessResponse(data={'registrationEnabled': enabled}, message='Estado de registro actualizado')

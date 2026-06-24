@@ -44,7 +44,7 @@ const TAB_ICONS: Record<DetailTab, string> = {
 };
 
 export default function AdminUsuariosView() {
-  const { usuarios } = useAdmin();
+  const { usuarios, registrationEnabled, toggleRegistration } = useAdmin();
 
   const [search, setSearch]           = useState("");
   const [filtroArea, setFiltroArea]   = useState("todas");
@@ -122,15 +122,25 @@ export default function AdminUsuariosView() {
             {totalCompleted} con test completado · {usuarios.length} total
           </p>
         </div>
-        {/* Export hint */}
-        <button
-          style={{ display: "flex", alignItems: "center", gap: 8, background: "transparent", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, borderRadius: 10, padding: "9px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all .12s" }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = COLORS.accentLight; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-        >
-          <i className="ti ti-download" style={{ fontSize: 16 }} />
-          Exportar lista
-        </button>
+        {/* Export and Actions */}
+        <div style={{ display: "flex", gap: 12 }}>
+          <button
+            onClick={() => toggleRegistration()}
+            style={{ display: "flex", alignItems: "center", gap: 8, background: registrationEnabled ? COLORS.tealLight : COLORS.coralLight, color: registrationEnabled ? COLORS.teal : COLORS.coral, border: `1.5px solid ${registrationEnabled ? COLORS.teal : COLORS.coral}`, borderRadius: 10, padding: "9px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all .12s" }}
+          >
+            <i className={`ti ${registrationEnabled ? 'ti-lock-open' : 'ti-lock'}`} style={{ fontSize: 16 }} />
+            {registrationEnabled ? "Registro: Abierto" : "Registro: Cerrado"}
+          </button>
+          
+          <button
+            style={{ display: "flex", alignItems: "center", gap: 8, background: "transparent", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, borderRadius: 10, padding: "9px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all .12s" }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = COLORS.accentLight; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+          >
+            <i className="ti ti-download" style={{ fontSize: 16 }} />
+            Exportar lista
+          </button>
+        </div>
       </div>
 
       {/* Summary mini-cards */}

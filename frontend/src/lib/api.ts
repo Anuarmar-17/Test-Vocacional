@@ -352,3 +352,28 @@ export async function saveLifeProject(projectData: any): Promise<boolean> {
   });
   return res.ok;
 }
+
+export async function getAdminConfigRegistration(): Promise<boolean> {
+  const token = getAccessToken();
+  if (!token) return true; // Default abierto si falla
+  const res = await fetch(`${API_URL}/admin/config/registration/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return true;
+  const data = await res.json();
+  return data.data?.registrationEnabled ?? true;
+}
+
+export async function setAdminConfigRegistration(enabled: boolean): Promise<boolean> {
+  const token = getAccessToken();
+  if (!token) return false;
+  const res = await fetch(`${API_URL}/admin/config/registration/`, {
+    method: 'PATCH',
+    headers: { 
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}` 
+    },
+    body: JSON.stringify({ registrationEnabled: enabled })
+  });
+  return res.ok;
+}
