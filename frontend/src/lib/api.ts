@@ -377,3 +377,45 @@ export async function setAdminConfigRegistration(enabled: boolean): Promise<bool
   });
   return res.ok;
 }
+
+export async function exportAdminUsers(): Promise<void> {
+  const token = getAccessToken();
+  if (!token) throw new Error("No autenticado");
+  
+  const res = await fetch(`${API_URL}/admin/users/export/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  
+  if (!res.ok) throw new Error("Error al exportar");
+  
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = "usuarios.xlsx";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
+
+export async function importAdminUsers(file: File): Promise<{ created: number, errors: string[] }> {
+  const token = getAccessToken();
+  if (!token) throw new Error("No autenticado");
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const res = await fetch(`${API_URL}/admin/users/import/`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData
+  });
+  
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.error || "Error al importar");
+  }
+  
+  return json.data;
+}

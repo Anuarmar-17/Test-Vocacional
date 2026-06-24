@@ -26,7 +26,8 @@ import Modal, { ModalActions } from "@/src/admin/components/ui/Modal";
 import BarChart from "@/src/admin/components/ui/Charts";
 import { useAdmin } from "@/src/admin/context/AdminContext";
 import { AdminUsuario, AREA_COLORS, AdminReflexion, AdminProyectoVida } from "@/src/admin/constants/adminData";
-import { getAdminUserReflections, getAdminUserLifeProject } from "@/src/lib/api";
+import { getAdminUserReflections, getAdminUserLifeProject, exportAdminUsers, importAdminUsers } from "@/src/lib/api";
+import { toast } from "sonner";
 
 type FiltroTest = "todos" | "completado" | "pendiente";
 type DetailTab = "perfil" | "autoconocimiento" | "proyecto_vida";
@@ -132,13 +133,49 @@ export default function AdminUsuariosView() {
             {registrationEnabled ? "Registro: Abierto" : "Registro: Cerrado"}
           </button>
           
+          <label
+            style={{ display: "flex", alignItems: "center", gap: 8, background: "transparent", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, borderRadius: 10, padding: "9px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all .12s" }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = COLORS.accentLight; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+          >
+            <i className="ti ti-upload" style={{ fontSize: 16 }} />
+            Importar
+            <input type="file" accept=".xlsx, .xls" hidden onChange={async (e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                const file = e.target.files[0];
+                try {
+                  toast.loading("Importando usuarios...", { id: "import" });
+                  const res = await importAdminUsers(file);
+                  toast.success(`${res.created} usuarios importados exitosamente.`, { id: "import" });
+                  if (res.errors && res.errors.length > 0) {
+                     console.error("Errores de importación:", res.errors);
+                     toast.warning(`${res.errors.length} errores. Revisa la consola.`);
+                  }
+                  setTimeout(() => window.location.reload(), 1500);
+                } catch(error: any) {
+                  toast.error(error.message, { id: "import" });
+                }
+                e.target.value = "";
+              }
+            }} />
+          </label>
+          
           <button
+            onClick={async () => {
+              try {
+                toast.loading("Generando archivo...", { id: "export" });
+                await exportAdminUsers();
+                toast.success("Archivo descargado", { id: "export" });
+              } catch(e: any) {
+                toast.error("Error al exportar", { id: "export" });
+              }
+            }}
             style={{ display: "flex", alignItems: "center", gap: 8, background: "transparent", color: COLORS.accent, border: `1.5px solid ${COLORS.accent}`, borderRadius: 10, padding: "9px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all .12s" }}
             onMouseEnter={(e) => { e.currentTarget.style.background = COLORS.accentLight; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
           >
             <i className="ti ti-download" style={{ fontSize: 16 }} />
-            Exportar lista
+            Exportar
           </button>
         </div>
       </div>

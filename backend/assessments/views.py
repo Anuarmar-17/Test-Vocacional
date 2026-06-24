@@ -6,9 +6,9 @@ from .models import Area, Resultado, ReflexionAutoconocimiento, ProyectoVida
 from .serializers import ResultadoSerializer, ReflexionSerializer, ProyectoVidaSerializer
 from accounts.models import Usuario
 from core.responses import SuccessResponse, ErrorResponse
+from django.http import HttpResponse
 import uuid
-
-# We extract user directly from request.user (which is accounts.Usuario because of JWT)
+import openpyxl
 # Wait, JWT token returns the `id` of Usuario. In `accounts/views.py`, the token `user_id` is the ID of the Usuario!
 # The JWT authentication automatically sets `request.user` to the model defined in AUTH_USER_MODEL.
 # But AUTH_USER_MODEL='accounts.User', which is NOT 'Usuario'!
@@ -435,4 +435,134 @@ class AdminConfigRegistrationView(BaseAuthAPIView):
                 session_id=str(uuid.uuid4())
             )
             
+            
         return SuccessResponse(data={'registrationEnabled': enabled}, message='Estado de registro actualizado')
+
+class AdminExportUsersView(BaseAuthAPIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        usuario = self.get_usuario(request)
+        if not usuario or not usuario.is_admin:
+            return Response({'error': 'No autorizado'}, status=403)
+
+        users = Usuario.objects.filter(activo=True).exclude(rol_id=1).order_by('-fecha_registro')
+        
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Usuarios"
+        
+        headers = ["ID", "Nombre", "Apellido", "Correo", "Contraseña (Hash)", "Curso", "Edad", "Tipo Documento", "Número Documento", "Fecha Registro"]
+        ws.append(headers)
+        
+        for u in users:
+            ws.append([
+                u.id,
+                u.nombre,
+                u.apellido,
+                u.correo,
+                u.password_hash,
+                u.curso,
+                u.edad,
+                u.tipo_documento,
+                u.numero_documento,
+                u.fecha_registro.strftime("%Y-%m-%d") if u.fecha_registro else ""
+            ])
+            
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="usuarios.xlsx"'
+        wb.save(response)
+        
+        return response
+
+class AdminImportUsersView(BaseAuthAPIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        usuario = self.get_usuario(request)
+        if not usuario or not usuario.is_admin:
+            return Response({'error': 'No autorizado'}, status=403)
+            
+        if 'file' not in request.FILES:
+            return Response({'error': 'No se proporcionó ningún archivo'}, status=400)
+            
+        file = request.FILES['file']
+        
+        try:
+            wb = openpyxl.load_workbook(file, data_only=True)
+            ws = wb.active
+        except Exception as e:
+            return Response({'error': f'Error al leer el archivo Excel: {str(e)}'}, status=400)
+            
+        rows = list(ws.rows)
+        if len(rows) < 2:
+            return Response({'error': 'El archivo está vacío o no tiene datos'}, status=400)
+            
+        header_row = rows[0]
+        headers = [str(cell.value).strip().lower() if cell.value else "" for cell in header_row]
+        
+        required = ["nombre", "correo"]
+        for req in required:
+            if req not in headers:
+                return Response({'error': f'Falta la columna obligatoria: {req}'}, status=400)
+                
+        idx = {h: i for i, h in enumerate(headers)}
+        
+        created_count = 0
+        errors = []
+        
+        for i, row in enumerate(rows[1:], start=2):
+            values = [cell.value for cell in row]
+            
+            if not any(values):
+                continue
+                
+            def get_val(col_name):
+                if col_name in idx and idx[col_name] < len(values):
+                    v = values[idx[col_name]]
+                    return str(v).strip() if v is not None else ""
+                return ""
+                
+            nombre = get_val("nombre")
+            apellido = get_val("apellido")
+            correo = get_val("correo").lower()
+            password = get_val("password") or "Estudiante123"
+            curso = get_val("curso")
+            edad_str = get_val("edad")
+            tipo_documento = get_val("tipo_documento")
+            numero_documento = get_val("numero_documento")
+            
+            if not nombre or not correo:
+                errors.append(f"Fila {i}: Falta nombre o correo.")
+                continue
+                
+            if Usuario.objects.filter(correo=correo).exists():
+                errors.append(f"Fila {i}: El correo {correo} ya existe.")
+                continue
+                
+            edad = None
+            if edad_str and str(edad_str).isdigit():
+                edad = int(float(edad_str))
+                
+            try:
+                Usuario.objects.create(
+                    nombre=nombre,
+                    apellido=apellido,
+                    correo=correo,
+                    password_hash=password,
+                    curso=curso,
+                    edad=edad,
+                    tipo_documento=tipo_documento,
+                    numero_documento=numero_documento,
+                    rol_id=2,
+                    activo=True,
+                    session_id=str(uuid.uuid4())
+                )
+                created_count += 1
+            except Exception as e:
+                errors.append(f"Fila {i}: Error al crear usuario -> {str(e)}")
+                
+        return SuccessResponse(data={
+            'created': created_count,
+            'errors': errors
+        }, message=f'Importación finalizada. {created_count} usuarios creados.')
