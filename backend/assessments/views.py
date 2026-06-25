@@ -162,7 +162,7 @@ class AIRecommendationsView(BaseAuthAPIView):
             return ErrorResponse(message='No hay resultados', status=404)
 
         try:
-            recomendacion = RecomendacionIA.objects.get(resultado=resultado)
+            recomendacion = RecomendacionIA.objects.get(resultado_id=resultado.id)
             return SuccessResponse(data={
                 'carreras_recomendadas': recomendacion.carreras,
                 'fecha_generacion': recomendacion.fecha_generacion.isoformat() if recomendacion.fecha_generacion else None,
@@ -184,7 +184,7 @@ class AIRecommendationsView(BaseAuthAPIView):
 
         # Check if already cached
         try:
-            existing = RecomendacionIA.objects.get(resultado=resultado)
+            existing = RecomendacionIA.objects.get(resultado_id=resultado.id)
             return SuccessResponse(data={
                 'carreras_recomendadas': existing.carreras,
                 'fecha_generacion': existing.fecha_generacion.isoformat() if existing.fecha_generacion else None,
@@ -230,7 +230,7 @@ class AIRecommendationsView(BaseAuthAPIView):
 
         # Guardar en BD (cache)
         RecomendacionIA.objects.update_or_create(
-            resultado=resultado,
+            resultado_id=resultado.id,
             defaults={
                 'carreras': carreras,
                 'fecha_generacion': timezone.now(),

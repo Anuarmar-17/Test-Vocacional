@@ -74,10 +74,7 @@ class ProyectoVida(models.Model):
 
 
 class RecomendacionIA(models.Model):
-    resultado = models.OneToOneField(
-        Resultado, on_delete=models.CASCADE,
-        db_column='resultado_id', related_name='recomendacion_ia'
-    )
+    resultado_id = models.IntegerField(unique=True)
     carreras = models.JSONField(default=list, blank=True)
     fecha_generacion = models.DateTimeField(default=timezone.now)
 

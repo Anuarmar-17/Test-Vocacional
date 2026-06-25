@@ -20,7 +20,7 @@ class ResultadoAdmin(admin.ModelAdmin):
 
 @admin.register(RecomendacionIA)
 class RecomendacionIAAdmin(admin.ModelAdmin):
-    list_display = ('resultado', 'fecha_generacion')
+    list_display = ('resultado_id', 'fecha_generacion')
     readonly_fields = ('carreras', 'fecha_generacion')
 
 
