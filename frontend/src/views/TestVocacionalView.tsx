@@ -136,7 +136,7 @@ export default function TestVocacionalView() {
   }
 
   return (
-    <div style={{ padding: "2rem 2.5rem", maxWidth: 820, margin: "0 auto" }}>
+    <div style={{ padding: "2rem 2.5rem", maxWidth: 960, margin: "0 auto" }}>
       {/* HEADER SECTION */}
       <div
         style={{
@@ -166,28 +166,48 @@ export default function TestVocacionalView() {
           </p>
         </div>
 
-        {/* COUNTER CARD */}
-        <Card
-          style={{
-            padding: "1rem 1.5rem",
-            textAlign: "center",
-            minWidth: 120,
-          }}
-        >
-          <p
+        {/* COUNTER CARD + SAVE BUTTON */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+          <Card
             style={{
-              margin: 0,
-              fontSize: 28,
-              fontWeight: 700,
-              color: COLORS.accent,
+              padding: "1rem 1.5rem",
+              textAlign: "center",
+              minWidth: 120,
             }}
           >
-            {answered}
-          </p>
-          <p style={{ margin: "2px 0 0", fontSize: 12, color: COLORS.textMuted }}>
-            de {total}
-          </p>
-        </Card>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 28,
+                fontWeight: 700,
+                color: COLORS.accent,
+              }}
+            >
+              {answered}
+            </p>
+            <p style={{ margin: "2px 0 0", fontSize: 12, color: COLORS.textMuted }}>
+              de {total}
+            </p>
+          </Card>
+          <button
+            onClick={handleSaveProgress}
+            style={{
+              background: COLORS.surface,
+              color: COLORS.textMuted,
+              border: `1px solid ${COLORS.border}`,
+              borderRadius: 10,
+              padding: "8px 18px",
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <i className="ti ti-device-floppy" style={{ fontSize: 14, marginRight: 6 }} aria-hidden="true" />
+            Guardar avance
+          </button>
+        </div>
       </div>
 
       {/* PROGRESS AND INFO CARD */}
@@ -407,32 +427,6 @@ export default function TestVocacionalView() {
         );
       })()}
 
-      {/* ACTION CONTROLS */}
-      <div
-        style={{
-          marginTop: 24,
-          display: "flex",
-          justifyContent: "flex-start",
-          alignItems: "center",
-        }}
-      >
-        <button
-          onClick={handleSaveProgress}
-          style={{
-            background: COLORS.surface,
-            color: COLORS.textMuted,
-            border: `1px solid ${COLORS.border}`,
-            borderRadius: 10,
-            padding: "11px 24px",
-            fontSize: 14,
-            fontWeight: 500,
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-          }}
-        >
-          Guardar avance
-        </button>
-      </div>
     </div>
   );
 }
