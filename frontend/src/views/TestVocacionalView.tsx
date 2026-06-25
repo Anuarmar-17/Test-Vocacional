@@ -148,7 +148,7 @@ export default function TestVocacionalView() {
       >
         <div>
           <Tag color={COLORS.accent} light={COLORS.accentLight}>
-            Módulo 2
+            Módulo 3
           </Tag>
           <h2
             style={{

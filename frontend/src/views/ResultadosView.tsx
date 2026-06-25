@@ -82,7 +82,7 @@ export default function ResultadosView() {
       <div style={{ padding: "2rem 2.5rem", maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
         <div style={{ marginBottom: "1.5rem", textAlign: "left" }}>
           <Tag color="#5060B8" light="#EAECF8">
-            Módulo 3
+            Módulo 4
           </Tag>
           <h2
             style={{
@@ -109,7 +109,7 @@ export default function ResultadosView() {
                 {answeredCount} / 80 preguntas respondidas
               </h3>
               <p style={{ color: COLORS.textMuted, fontSize: 14, maxWidth: 400, margin: '0 auto' }}>
-                Responde todas las preguntas en el Módulo 2 para calcular tus porcentajes y descubrir tus carreras compatibles.
+                Responde todas las preguntas en el Módulo 3 para calcular tus porcentajes y descubrir tus carreras compatibles.
               </p>
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function ResultadosView() {
         <div>
           <div style={{ marginBottom: "1.5rem" }}>
             <Tag color="#5060B8" light="#EAECF8">
-              Módulo 3
+              Módulo 4
             </Tag>
             <h2
               style={{

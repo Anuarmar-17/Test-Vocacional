@@ -79,7 +79,7 @@ export default function ProyectoVidaView() {
     <div style={{ padding: "2rem 2.5rem", maxWidth: 820, margin: "0 auto" }}>
       <div style={{ marginBottom: "1.5rem" }}>
         <Tag color={COLORS.amber} light={COLORS.amberLight}>
-          Módulo 4
+          Módulo 2
         </Tag>
         <h2
           style={{

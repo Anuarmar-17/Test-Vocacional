@@ -41,12 +41,21 @@ export default function DashboardView() {
       color: COLORS.teal,
     },
     {
+      id: "proyecto",
+      label: "Proyecto de Vida",
+      desc: "Define tu futuro",
+      icon: "ti-map",
+      done: isProyectoDone,
+      active: isAutoconocimientoDone && !isProyectoDone,
+      color: COLORS.amber,
+    },
+    {
       id: "test",
       label: "Test Vocacional",
       desc: "80 preguntas de interés",
       icon: "ti-clipboard-list",
       done: isTestDone,
-      active: isAutoconocimientoDone && !isTestDone,
+      active: isProyectoDone && !isTestDone,
       color: COLORS.accent,
     },
     {
@@ -57,15 +66,6 @@ export default function DashboardView() {
       done: isResultadosDone,
       active: isTestDone && !isResultadosDone,
       color: COLORS.coral,
-    },
-    {
-      id: "proyecto",
-      label: "Proyecto de Vida",
-      desc: "Define tu futuro",
-      icon: "ti-map",
-      done: isProyectoDone,
-      active: isResultadosDone && !isProyectoDone,
-      color: COLORS.amber,
     },
   ];
 

@@ -76,8 +76,8 @@ export const NAV_LINKS: NavLink[] = [
   { id: "inicio",           label: "Inicio",            icon: "ti-home" },
   { id: "dashboard",        label: "Perfil",            icon: "ti-user" },
   { id: "autoconocimiento", label: "Autoconocimiento",  icon: "ti-brain" },
+  { id: "proyecto",         label: "Proyecto de Vida",  icon: "ti-map" },
   { id: "test",             label: "Test Vocacional",   icon: "ti-clipboard-list" },
   { id: "resultados",       label: "Resultados",        icon: "ti-chart-bar" },
-  { id: "proyecto",         label: "Proyecto de Vida",  icon: "ti-map" },
 ];
 
