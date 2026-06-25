@@ -12,6 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { generateAIRecommendations, getAIRecommendations, AIRecommendation } from "@/src/lib/api";
 
 const AREA_ID_TO_LABEL: Record<string, string> = {
   arte: "Arte y Creatividad",
@@ -24,6 +25,10 @@ const AREA_ID_TO_LABEL: Record<string, string> = {
 export default function ResultadosView() {
   const { dynamicAreas, answeredCount, resultadosAcumulados } = useVocacional();
   const [profesionesData, setProfesionesData] = useState<any[] | null>(null);
+  const [aiRecommendations, setAiRecommendations] = useState<AIRecommendation[] | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(false);
+  const [aiTriggered, setAiTriggered] = useState(false);
 
   useEffect(() => {
     fetch("/profesiones.json")
@@ -31,7 +36,47 @@ export default function ResultadosView() {
       .then((data) => setProfesionesData(data))
       .catch(() => setProfesionesData([]));
   }, []);
-  
+
+  // Trigger AI recommendations when test is complete
+  useEffect(() => {
+    if (answeredCount < 80 || aiTriggered || !profesionesData) return;
+    setAiTriggered(true);
+
+    const sorted = [...dynamicAreas].sort((a, b) => b.score - a.score);
+    const top = sorted[0];
+    const second = sorted[1];
+
+    const filtered = profesionesData.filter(
+      (p) => p.area === AREA_ID_TO_LABEL[top.id] || p.area === AREA_ID_TO_LABEL[second?.id]
+    );
+
+    async function load() {
+      // Try cache first
+      const cached = await getAIRecommendations();
+      if (cached?.carreras_recomendadas?.length) {
+        setAiRecommendations(cached.carreras_recomendadas);
+        return;
+      }
+
+      setAiLoading(true);
+      setAiError(false);
+
+      try {
+        const result = await generateAIRecommendations(filtered);
+        if (result?.carreras_recomendadas?.length) {
+          setAiRecommendations(result.carreras_recomendadas);
+        } else {
+          setAiError(true);
+        }
+      } catch {
+        setAiError(true);
+      } finally {
+        setAiLoading(false);
+      }
+    }
+
+    load();
+  }, [answeredCount, aiTriggered, profesionesData, dynamicAreas]);
   if (answeredCount < 80) {
     return (
       <div style={{ padding: "2rem 2.5rem", maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
@@ -440,37 +485,77 @@ export default function ResultadosView() {
                   letterSpacing: ".4px",
                 }}
               >
-                Carreras recomendadas
+                {aiLoading ? "Generando recomendaciones con IA..." : "Carreras recomendadas"}
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {(profesionesData
-                  ? profesionesData
-                      .filter((p) => p.area === AREA_ID_TO_LABEL[top.id])
-                      .map((p) => p.nombre)
-                  : ["Cargando..."]
-                ).map((p) => (
-                  <div
-                    key={p}
-                    style={{
-                      background: COLORS.bg,
-                      borderRadius: 8,
-                      padding: "8px 12px",
-                      fontSize: 13.5,
-                      color: COLORS.text,
-                      border: `1px solid ${COLORS.border}`,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <i
-                      className="ti ti-arrow-right"
-                      style={{ fontSize: 14, color: COLORS.textLight }}
-                      aria-hidden="true"
-                    />
-                    {p}
+                {aiLoading ? (
+                  <div style={{ textAlign: "center", padding: "1.5rem" }}>
+                    <div style={{ width: 32, height: 32, border: "3px solid #E5E7EB", borderTopColor: COLORS.accent, borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 12px" }} />
+                    <p style={{ fontSize: 13, color: COLORS.textMuted, margin: 0 }}>Analizando tus respuestas...</p>
                   </div>
-                ))}
+                ) : aiRecommendations ? (
+                  aiRecommendations
+                    .filter((c) => c.area === AREA_ID_TO_LABEL[top.id])
+                    .map((c) => (
+                      <div
+                        key={c.nombre}
+                        style={{
+                          background: COLORS.bg,
+                          borderRadius: 8,
+                          padding: "8px 12px",
+                          fontSize: 13.5,
+                          color: COLORS.text,
+                          border: `1px solid ${COLORS.border}`,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 4,
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <i
+                            className="ti ti-arrow-right"
+                            style={{ fontSize: 14, color: COLORS.accent }}
+                            aria-hidden="true"
+                          />
+                          <span style={{ fontWeight: 600 }}>{c.nombre}</span>
+                        </div>
+                        {c.por_que_recomendada && (
+                          <p style={{ margin: 0, fontSize: 12, color: COLORS.textMuted, lineHeight: 1.5, paddingLeft: 22 }}>
+                            {c.por_que_recomendada}
+                          </p>
+                        )}
+                      </div>
+                    ))
+                ) : (
+                  (profesionesData
+                    ? profesionesData
+                        .filter((p) => p.area === AREA_ID_TO_LABEL[top.id])
+                        .map((p) => p.nombre)
+                    : ["Cargando..."]
+                  ).map((p) => (
+                    <div
+                      key={p}
+                      style={{
+                        background: COLORS.bg,
+                        borderRadius: 8,
+                        padding: "8px 12px",
+                        fontSize: 13.5,
+                        color: COLORS.text,
+                        border: `1px solid ${COLORS.border}`,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <i
+                        className="ti ti-arrow-right"
+                        style={{ fontSize: 14, color: COLORS.textLight }}
+                        aria-hidden="true"
+                      />
+                      {p}
+                    </div>
+                  ))
+                )}
               </div>
             </Card>
 
@@ -533,37 +618,72 @@ export default function ResultadosView() {
                   letterSpacing: ".4px",
                 }}
               >
-                Carreras recomendadas
+                {aiLoading ? "Generando recomendaciones con IA..." : "Carreras recomendadas"}
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {(profesionesData
-                  ? profesionesData
-                      .filter((p) => p.area === AREA_ID_TO_LABEL[second.id])
-                      .map((p) => p.nombre)
-                  : ["Cargando..."]
-                ).map((p) => (
-                  <div
-                    key={p}
-                    style={{
-                      background: COLORS.bg,
-                      borderRadius: 8,
-                      padding: "8px 12px",
-                      fontSize: 13.5,
-                      color: COLORS.text,
-                      border: `1px solid ${COLORS.border}`,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <i
-                      className="ti ti-arrow-right"
-                      style={{ fontSize: 14, color: COLORS.textLight }}
-                      aria-hidden="true"
-                    />
-                    {p}
-                  </div>
-                ))}
+                {aiLoading ? null : aiRecommendations ? (
+                  aiRecommendations
+                    .filter((c) => c.area === AREA_ID_TO_LABEL[second.id])
+                    .map((c) => (
+                      <div
+                        key={c.nombre}
+                        style={{
+                          background: COLORS.bg,
+                          borderRadius: 8,
+                          padding: "8px 12px",
+                          fontSize: 13.5,
+                          color: COLORS.text,
+                          border: `1px solid ${COLORS.border}`,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 4,
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <i
+                            className="ti ti-arrow-right"
+                            style={{ fontSize: 14, color: COLORS.textLight }}
+                            aria-hidden="true"
+                          />
+                          <span style={{ fontWeight: 600 }}>{c.nombre}</span>
+                        </div>
+                        {c.por_que_recomendada && (
+                          <p style={{ margin: 0, fontSize: 12, color: COLORS.textMuted, lineHeight: 1.5, paddingLeft: 22 }}>
+                            {c.por_que_recomendada}
+                          </p>
+                        )}
+                      </div>
+                    ))
+                ) : (
+                  (profesionesData
+                    ? profesionesData
+                        .filter((p) => p.area === AREA_ID_TO_LABEL[second.id])
+                        .map((p) => p.nombre)
+                    : ["Cargando..."]
+                  ).map((p) => (
+                    <div
+                      key={p}
+                      style={{
+                        background: COLORS.bg,
+                        borderRadius: 8,
+                        padding: "8px 12px",
+                        fontSize: 13.5,
+                        color: COLORS.text,
+                        border: `1px solid ${COLORS.border}`,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <i
+                        className="ti ti-arrow-right"
+                        style={{ fontSize: 14, color: COLORS.textLight }}
+                        aria-hidden="true"
+                      />
+                      {p}
+                    </div>
+                  ))
+                )}
               </div>
             </Card>
           </div>

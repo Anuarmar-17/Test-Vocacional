@@ -40,6 +40,15 @@ export const PROFESIONES: Record<string, string[]> = {
   tecnologia:["Ingeniería de Sistemas", "Ingeniería Electrónica", "Biotecnología", "Física", "Matemáticas"],
 };
 
+export interface AIRecommendation {
+  nombre: string;
+  descripcion: string;
+  por_que_recomendada: string;
+  puntaje_afinidad: number;
+  duracion: string;
+  area: string;
+}
+
 export interface Pregunta {
   id: number;
   area: string;

@@ -284,6 +284,42 @@ export async function saveResults(
   return res.ok;
 }
 
+export interface AIRecommendation {
+  nombre: string;
+  descripcion: string;
+  por_que_recomendada: string;
+  puntaje_afinidad: number;
+  duracion: string;
+  area: string;
+}
+
+export async function getAIRecommendations(): Promise<{ carreras_recomendadas: AIRecommendation[]; fecha_generacion: string } | null> {
+  const token = getAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${API_URL}/results/recommendations/`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.data;
+}
+
+export async function generateAIRecommendations(profesionesFiltradas: any[]): Promise<{ carreras_recomendadas: AIRecommendation[]; fecha_generacion: string } | null> {
+  const token = getAccessToken();
+  if (!token) return null;
+  const res = await fetch(`${API_URL}/results/recommendations/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ profesiones_filtradas: profesionesFiltradas })
+  });
+  if (res.status >= 500) return null;
+  const data = await res.json();
+  return data.data;
+}
+
 export async function getAdminStats(): Promise<any> {
   const token = getAccessToken();
   if (!token) return null;

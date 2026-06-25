@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Area, Profesion, Resultado, ReflexionAutoconocimiento, ProyectoVida
+from .models import Area, Profesion, Resultado, ReflexionAutoconocimiento, ProyectoVida, RecomendacionIA
 
 
 @admin.register(Area)
@@ -16,6 +16,12 @@ class ProfesionAdmin(admin.ModelAdmin):
 class ResultadoAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'estado', 'progreso_porcentaje', 'fecha_realizacion')
     list_filter = ('estado',)
+
+
+@admin.register(RecomendacionIA)
+class RecomendacionIAAdmin(admin.ModelAdmin):
+    list_display = ('resultado', 'fecha_generacion')
+    readonly_fields = ('carreras', 'fecha_generacion')
 
 
 @admin.register(ReflexionAutoconocimiento)

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from accounts.models import Usuario
 
 class Area(models.Model):
@@ -70,3 +71,16 @@ class ProyectoVida(models.Model):
     class Meta:
         managed = False
         db_table = 'proyecto_vida'
+
+
+class RecomendacionIA(models.Model):
+    resultado = models.OneToOneField(
+        Resultado, on_delete=models.CASCADE,
+        db_column='resultado_id', related_name='recomendacion_ia'
+    )
+    carreras = models.JSONField(default=list, blank=True)
+    fecha_generacion = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = True
+        db_table = 'recomendaciones_ia'

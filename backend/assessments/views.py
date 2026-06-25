@@ -2,13 +2,15 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils import timezone
-from .models import Area, Resultado, ReflexionAutoconocimiento, ProyectoVida
+from .models import Area, Resultado, ReflexionAutoconocimiento, ProyectoVida, RecomendacionIA
 from .serializers import ResultadoSerializer, ReflexionSerializer, ProyectoVidaSerializer
 from accounts.models import Usuario
 from core.responses import SuccessResponse, ErrorResponse
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 import uuid
 import openpyxl
+import json
 # Wait, JWT token returns the `id` of Usuario. In `accounts/views.py`, the token `user_id` is the ID of the Usuario!
 # The JWT authentication automatically sets `request.user` to the model defined in AUTH_USER_MODEL.
 # But AUTH_USER_MODEL='accounts.User', which is NOT 'Usuario'!
@@ -145,6 +147,100 @@ class ProyectoVidaView(BaseAuthAPIView):
             serializer.save()
             return SuccessResponse(data=serializer.data, message='Proyecto de vida actualizado')
         return ErrorResponse(message='Datos inválidos', status=400)
+
+
+class AIRecommendationsView(BaseAuthAPIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        usuario = self.get_usuario(request)
+        if not usuario:
+            return Response({'error': 'No autenticado'}, status=401)
+
+        resultado = Resultado.objects.filter(usuario=usuario).order_by('-fecha_realizacion').first()
+        if not resultado:
+            return ErrorResponse(message='No hay resultados', status=404)
+
+        try:
+            recomendacion = RecomendacionIA.objects.get(resultado=resultado)
+            return SuccessResponse(data={
+                'carreras_recomendadas': recomendacion.carreras,
+                'fecha_generacion': recomendacion.fecha_generacion.isoformat() if recomendacion.fecha_generacion else None,
+            })
+        except RecomendacionIA.DoesNotExist:
+            return SuccessResponse(data=None, message='No se han generado recomendaciones IA')
+
+    def post(self, request):
+        usuario = self.get_usuario(request)
+        if not usuario:
+            return Response({'error': 'No autenticado'}, status=401)
+
+        resultado = Resultado.objects.filter(usuario=usuario).order_by('-fecha_realizacion').first()
+        if not resultado:
+            return ErrorResponse(message='No hay resultados', status=404)
+
+        if resultado.estado != 'COMPLETADO':
+            return ErrorResponse(message='El test no está completo', status=400)
+
+        # Check if already cached
+        try:
+            existing = RecomendacionIA.objects.get(resultado=resultado)
+            return SuccessResponse(data={
+                'carreras_recomendadas': existing.carreras,
+                'fecha_generacion': existing.fecha_generacion.isoformat() if existing.fecha_generacion else None,
+            })
+        except RecomendacionIA.DoesNotExist:
+            pass
+
+        # Obtener áreas principal y secundaria
+        areas_map = {a.id: a for a in Area.objects.all()}
+        area_principal = areas_map.get(resultado.area_principal_id)
+        area_secundaria = areas_map.get(resultado.area_secundaria_id)
+
+        if not area_principal:
+            return ErrorResponse(message='No se pudo determinar el área principal', status=400)
+
+        area_principal_nombre = area_principal.nombre
+        area_secundaria_nombre = area_secundaria.nombre if area_secundaria else ''
+
+        # Recibir profesiones filtradas del frontend (body)
+        profesiones_filtradas = request.data.get('profesiones_filtradas', [])
+
+        if not profesiones_filtradas:
+            return ErrorResponse(message='No se enviaron profesiones filtradas', status=400)
+
+        # Obtener respuestas del estudiante
+        respuestas = resultado.datos.get('respuestas', {}) if resultado.datos else {}
+
+        # Llamar a Gemini
+        try:
+            from .services.gemini_service import GeminiCareerService
+            service = GeminiCareerService()
+            carreras = service.generar_recomendaciones(
+                area_principal=area_principal_nombre,
+                area_secundaria=area_secundaria_nombre,
+                respuestas_estudiante=respuestas,
+                profesiones_filtradas=profesiones_filtradas,
+            )
+        except Exception as e:
+            return ErrorResponse(
+                message=f'Error al generar recomendaciones IA: {str(e)}',
+                status=500,
+            )
+
+        # Guardar en BD (cache)
+        RecomendacionIA.objects.update_or_create(
+            resultado=resultado,
+            defaults={
+                'carreras': carreras,
+                'fecha_generacion': timezone.now(),
+            }
+        )
+
+        return SuccessResponse(data={
+            'carreras_recomendadas': carreras,
+            'fecha_generacion': timezone.now().isoformat(),
+        }, status=201)
 
 
 class AdminStatsView(BaseAuthAPIView):
