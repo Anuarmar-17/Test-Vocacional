@@ -136,7 +136,7 @@ export default function TestVocacionalView() {
   }
 
   return (
-    <div style={{ padding: "1rem 2.5rem", maxWidth: 960, margin: "0 auto" }}>
+    <div style={{ padding: "2rem 2.5rem", maxWidth: 960, margin: "0 auto" }}>
       {/* HEADER SECTION */}
       <div
         style={{
@@ -302,7 +302,7 @@ export default function TestVocacionalView() {
               }}
             >
               {/* 1. Large illustrative image at the top (~50% height) */}
-              <div style={{ width: "100%", height: 300, overflow: "hidden", backgroundColor: "#F0F2F9" }}>
+              <div style={{ width: "100%", height: 500, overflow: "hidden", backgroundColor: "#F0F2F9" }}>
                 <img
                   src={imagePath}
                   alt={`Pregunta ${q.id}`}
