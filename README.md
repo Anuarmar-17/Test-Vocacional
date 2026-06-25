@@ -1,148 +1,180 @@
 # 🎓 Sistema Web de Orientación Vocacional
 
-Aplicación web full stack desarrollada para ayudar a estudiantes de educación media a identificar sus intereses profesionales mediante un test vocacional interactivo, recomendaciones de carreras y construcción de proyecto de vida.
+Aplicación web full stack desarrollada para ayudar a estudiantes de educación media a identificar sus intereses profesionales mediante un test vocacional interactivo, recomendaciones impulsadas por IA y construcción de proyecto de vida.
 
 ---
 
-# 📌 Descripción del Proyecto
+## 📌 Descripción del Proyecto
 
 La plataforma permite:
 
 - Registro e inicio de sesión de usuarios
-- Desarrollo de test vocacional
+- Desarrollo de test vocacional de 80 preguntas
 - Procesamiento automático de resultados
 - Clasificación de áreas de interés
-- Recomendaciones profesionales
+- Recomendaciones profesionales con IA (Gemini 2.5 Flash)
 - Gestión de proyecto de vida
-- Panel administrativo
+- Panel administrativo con estadísticas y exportación de datos
 - Visualización gráfica de resultados
-
-El sistema busca digitalizar y optimizar los procesos de orientación vocacional realizados tradicionalmente mediante formularios físicos.
 
 ---
 
-# 🚀 Tecnologías Utilizadas
+## 🚀 Tecnologías Utilizadas
 
-## Frontend
+### Frontend
 
 - Next.js
 - React
 - TailwindCSS
-- Axios
-- React Hook Form
-- Zod
 - Recharts
+- Tabler Icons
 
-## Backend
+### Backend
 
-- Django
-- Django REST Framework
-- Simple JWT
+- Django + Django REST Framework
+- Simple JWT (autenticación)
 - Django CORS Headers
+- Openpyxl (exportación Excel)
+- google-genai (Gemini 2.5 Flash)
 
-## Base de Datos
+### Base de Datos
 
-- MySQL
+- MySQL (Aiven)
+
+### Despliegue
+
+- Frontend: Vercel
+- Backend: Render
+- Base de datos: Aiven
 
 ---
 
-# 🏗️ Arquitectura del Proyecto
+## 🏗️ Arquitectura del Proyecto
 
 ```bash
-Frontend (Next.js)
+Frontend (Next.js - Vercel)
         ↓
-API REST (Django REST Framework)
+API REST (Django - Render)
         ↓
-MySQL Database
+MySQL Database (Aiven)
+
+        ──► Gemini 2.5 Flash API (recomendaciones IA)
 ```
 
 ---
 
-# 📂 Estructura del Proyecto
+## 📂 Estructura del Proyecto
 
 ```bash
 project-root/
 │
 ├── frontend/          # Aplicación Next.js
-├── backend/           # API REST con Django
-├── database/          # Scripts y documentación DB
-├── docs/              # Documentación técnica
+│   ├── app/           # Páginas y layout
+│   ├── src/views/     # Vistas del estudiante
+│   ├── src/context/   # Contextos React
+│   ├── src/hooks/     # Custom hooks
+│   ├── src/lib/       # Cliente API y utilidades
+│   ├── src/constants/ # Constantes y tipos
+│   ├── src/components/# Componentes reutilizables
+│   └── public/        # Archivos estáticos (profesiones.json, imágenes)
 │
-├── README.md
-└── .gitignore
+├── backend/           # API REST con Django
+│   ├── accounts/      # Módulo de usuarios
+│   ├── assessments/   # Test vocacional, resultados y recomendaciones IA
+│   │   ├── services/  # GeminiCareerService
+│   │   ├── data/      # preguntas.json
+│   │   └── migrations/
+│   ├── core/          # Utilidades compartidas
+│   ├── config/        # Configuración de Django
+│   └── static/        # Diagramas de casos de uso
+│
+└── README.md
 ```
 
 ---
 
-# ⚙️ Funcionalidades Principales
+## ⚙️ Funcionalidades Principales
 
-## 👤 Gestión de Usuarios
+### 👤 Gestión de Usuarios
 
-- Registro de usuarios
-- Inicio de sesión
-- Autenticación JWT
-- Gestión de perfiles
+- Registro e importación masiva desde Excel
+- Inicio de sesión con JWT
+- Roles: estudiante y administrador
 
 ---
 
-## 🧠 Módulo de Autoconocimiento
+### 🧠 Módulo de Autoconocimiento
 
-- Formularios reflexivos
+- 9 preguntas reflexivas
 - Registro de respuestas personales
 - Contenido educativo y motivacional
 
 ---
 
-## 📝 Test Vocacional
+### 📝 Test Vocacional
 
-- Test de 80 preguntas
-- Validación de respuestas obligatorias
-- Persistencia en base de datos
+- 80 preguntas con imágenes ilustrativas
+- Dos opciones: "Me interesa" / "No me interesa"
+- Navegación secuencial con avance automático
+- Persistencia en base de datos por usuario
+- 5 áreas vocacionales evaluadas
 
 ---
 
-## 📊 Procesamiento de Resultados
+### 📊 Procesamiento de Resultados
 
-- Clasificación automática
-- Cálculo de puntajes
-- Identificación de áreas predominantes
+- Cálculo automático de puntajes por área
+- Identificación de área principal y secundaria
+- Visualización con gráfico de pastel interactivo
+- Barra de progreso por área
 
 Áreas vocacionales:
 
-1. Arte y creatividad
-2. Ciencias sociales
-3. Económica y administrativa
-4. Ciencia y tecnología
-5. Ciencias de la salud y ecológicas
+1. Arte y Creatividad
+2. Ciencias Sociales
+3. Económica / Administrativa
+4. Ciencia y Tecnología
+5. Ciencias de la Salud
 
 ---
 
-## 💼 Recomendaciones Profesionales
+### 🤖 Recomendaciones con IA
 
-- Profesiones asociadas por área
-- Recomendaciones automáticas
-- Visualización gráfica de resultados
-
----
-
-## 🎯 Proyecto de Vida
-
-- Registro de metas
-- Visión personal
-- Objetivos a corto, mediano y largo plazo
-
----
-
-## 🛠️ Dashboard Administrativo
-
-- Gestión de preguntas
-- Gestión de profesiones
-- Estadísticas generales
-- Administración de usuarios
+- Al completar el test, el backend envía a Gemini 2.5 Flash:
+  - Preguntas donde el estudiante respondió "Me interesa"
+  - Área principal y secundaria detectadas
+  - Profesiones candidatas filtradas por esas áreas
+- Gemini devuelve máximo 10 carreras con:
+  - Nombre y descripción detallada
+  - Explicación personalizada de por qué se adapta al estudiante
+  - Puntaje de afinidad (0-100)
+- Las recomendaciones se cachean en base de datos
+- Si la IA falla, se muestran las carreras del archivo `profesiones.json` como fallback
 
 ---
 
-# 🔐 Seguridad
+### 🎯 Proyecto de Vida
+
+- Registro de visión personal
+- Metas a corto, mediano y largo plazo
+- Preguntas de autoevaluación académica
+- Compromisos personales
+
+---
+
+### 🛠️ Dashboard Administrativo
+
+- Estadísticas generales (usuarios, tests completados)
+- Distribución de áreas vocacionales entre estudiantes
+- Listado de usuarios con filtros
+- Exportación de usuarios a Excel (.xlsx)
+- Importación masiva de estudiantes desde Excel
+- Visualización de respuestas de autoconocimiento y proyecto de vida por usuario
+- Control de apertura/cierre de registro
+
+---
+
+## 🔐 Seguridad
 
 El sistema implementa:
 
@@ -154,36 +186,26 @@ El sistema implementa:
 
 ---
 
-# 📈 Características Técnicas
-
-- Arquitectura cliente-servidor
-- API RESTful
-- Diseño responsive
-- Arquitectura MVC
-- Base de datos relacional
-- Escalable y mantenible
-
----
-
-# 📊 Modelo de Datos
+## 📊 Modelo de Datos
 
 Entidades principales:
 
-- Usuario
-- Pregunta
-- Respuesta
-- Resultado
-- Área Vocacional
-- Profesión
+- **Usuario** — estudiantes y administradores
+- **Área Vocacional** — clasificación de intereses
+- **Profesión** — carreras asociadas a cada área
+- **Resultado** — respuestas del test y puntajes por área
+- **RecomendacionIA** — carreras recomendadas por Gemini (cache)
+- **ReflexionAutoconocimiento** — respuestas del módulo reflexivo
+- **ProyectoVida** — metas y visión del estudiante
 
 ---
 
-# 📂 Diagramas de Casos de Uso
+## 📂 Diagramas de Casos de Uso
 
 Caso de uso 01 - 04: (Registrarse, Iniciar sesión, Realizar autoconocimiento, Realizar test vocacional).
 ![CU01 - CU04](./backend/static/img/CU01.png)
 
-Caso de uso 05 - 08: (Visualizar resultados, Obtener recomendacionesprofecionales, Gestionar proyectos de vida, Descargar Resultados).
+Caso de uso 05 - 08: (Visualizar resultados, Obtener recomendaciones profesionales, Gestionar proyectos de vida, Descargar resultados).
 ![CU05 - CU08](./backend/static/img/CU02.png)
 
 Caso de uso 09 - 12: (Consultar información educativa, Gestionar preguntas, Gestionar profesiones y áreas, Gestionar usuarios y estadísticas).
@@ -191,160 +213,12 @@ Caso de uso 09 - 12: (Consultar información educativa, Gestionar preguntas, Ges
 
 ---
 
-# 🌐 Despliegue
-
-## Frontend
-
-- Vercel
-
-## Backend
-
-- Render / Railway
-
-## Base de Datos
-
-- Aiven (MySQL)
-
----
-
-# 🧪 Requisitos del Sistema
-
-## Frontend
-
-- Node.js 20+
-- npm o pnpm
-
-## Backend
-
-- Python 3.11+
-- pip
-- virtualenv
-
-## Base de Datos
-
-- MySQL 8+
-
----
-
-# ⚡ Instalación del Proyecto
-
-## 1️⃣ Clonar repositorio
-
-```bash
-git clone https://github.com/tu-usuario/tu-repositorio.git
-```
-
----
-
-# 🔵 Frontend Setup
-
-```bash
-cd frontend
-
-npm install
-
-npm run dev
-```
-
-Frontend disponible en:
-
-```bash
-http://localhost:3000
-```
-
----
-
-# 🟢 Backend Setup
-
-## Crear entorno virtual
-
-```bash
-cd backend
-
-python -m venv venv
-```
-
-## Activar entorno virtual
-
-### Windows
-
-```bash
-venv\Scripts\activate
-```
-
-### Linux / Mac
-
-```bash
-source venv/bin/activate
-```
-
-## Instalar dependencias
-
-```bash
-pip install -r requirements.txt
-```
-
-## Ejecutar migraciones
-
-```bash
-python manage.py migrate
-```
-
-## Ejecutar servidor
-
-```bash
-python manage.py runserver
-```
-
-Backend disponible en:
-
-```bash
-http://localhost:8000
-```
-
----
-
-# 📌 Variables de Entorno
-
-## Frontend `.env.local`
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-```
-
-## Backend `.env`
-
-```env
-DEBUG=True
-
-SECRET_KEY=your_secret_key
-
-DB_NAME=database_name
-DB_USER=username
-DB_PASSWORD=password
-DB_HOST=localhost
-DB_PORT=5432
-```
-
----
-
-# 📷 Futuras Mejoras
-
-- Generación de PDF
-- IA para recomendaciones personalizadas
-- Chatbot vocacional
-- Sistema multilenguaje
-- Dashboard analítico avanzado
-- Notificaciones por correo
-
----
-
-# 👨‍💻 Autor
+## 👨‍💻 Autor
 
 Proyecto desarrollado como solución académica para orientación vocacional y proyecto de vida.
 
 ---
 
-# 📄 Licencia
+## 📄 Licencia
 
 Este proyecto es de uso académico y educativo.
