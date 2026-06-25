@@ -43,7 +43,7 @@ export default function Sidebar() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 10,
+            gap: collapsed ? 4 : 10,
             flexShrink: 0,
           }}
         >

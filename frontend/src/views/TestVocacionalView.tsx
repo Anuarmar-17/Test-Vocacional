@@ -224,15 +224,16 @@ export default function TestVocacionalView() {
         <button
           onClick={handleSaveProgress}
           style={{
-            background: COLORS.surface,
-            color: COLORS.textMuted,
-            border: `1px solid ${COLORS.border}`,
+            background: COLORS.teal,
+            color: "#fff",
+            border: "none",
             borderRadius: 10,
             padding: "8px 20px",
             fontSize: 13,
-            fontWeight: 500,
+            fontWeight: 600,
             cursor: "pointer",
             transition: "all 0.2s ease",
+            boxShadow: "0 2px 8px rgba(15,155,142,0.25)",
           }}
         >
           <i className="ti ti-device-floppy" style={{ fontSize: 14, marginRight: 6 }} aria-hidden="true" />

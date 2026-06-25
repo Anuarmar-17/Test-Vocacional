@@ -41,7 +41,7 @@ export default function AdminSidebar() {
           flexShrink: 0,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: collapsed ? 4 : 10, flexShrink: 0 }}>
           <div
             style={{
               width: 30,
