@@ -78,6 +78,25 @@ export default function Sidebar() {
               VocaTest
             </span>
           )}
+          {collapsed && (
+            <button
+              onClick={() => setCollapsed(false)}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: COLORS.textLight,
+                padding: 4,
+                borderRadius: 6,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              title="Expandir menú"
+            >
+              <i className="ti ti-chevron-right" style={{ fontSize: 16 }} aria-hidden="true" />
+            </button>
+          )}
         </div>
         {!collapsed && (
           <button
@@ -253,27 +272,6 @@ export default function Sidebar() {
           <i className="ti ti-logout" style={{ fontSize: 15 }} aria-hidden="true" />
           {!collapsed && "Cerrar Sesión"}
         </button>
-        {collapsed && (
-          <button
-            onClick={() => setCollapsed(false)}
-            style={{
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              color: COLORS.textLight,
-              padding: 4,
-              borderRadius: 6,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-              marginTop: 4,
-            }}
-            title="Expandir menú"
-          >
-            <i className="ti ti-chevron-right" style={{ fontSize: 16 }} aria-hidden="true" />
-          </button>
-        )}
       </div>
     </aside>
   );
