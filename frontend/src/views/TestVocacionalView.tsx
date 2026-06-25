@@ -136,14 +136,14 @@ export default function TestVocacionalView() {
   }
 
   return (
-    <div style={{ padding: "2rem 2.5rem", maxWidth: 960, margin: "0 auto" }}>
+    <div style={{ padding: "1.5rem 2.5rem", maxWidth: 960, margin: "0 auto" }}>
       {/* HEADER SECTION */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          marginBottom: "1.5rem",
+          marginBottom: "1rem",
         }}
       >
         <div>
