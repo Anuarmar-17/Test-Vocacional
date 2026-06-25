@@ -302,7 +302,7 @@ export default function TestVocacionalView() {
               }}
             >
               {/* 1. Large illustrative image at the top (~50% height) */}
-              <div style={{ width: "100%", height: 500, overflow: "hidden", backgroundColor: "#F0F2F9" }}>
+              <div style={{ width: "100%", height: 350, overflow: "hidden", backgroundColor: "#F0F2F9" }}>
                 <img
                   src={imagePath}
                   alt={`Pregunta ${q.id}`}
