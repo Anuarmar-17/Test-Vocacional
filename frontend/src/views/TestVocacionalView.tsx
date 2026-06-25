@@ -217,29 +217,28 @@ export default function TestVocacionalView() {
               </Tag>
             ))}
           </div>
+          <button
+            onClick={handleSaveProgress}
+            style={{
+              background: COLORS.teal,
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              padding: "5px 13px",
+              fontSize: 11.5,
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              boxShadow: "0 2px 8px rgba(15,155,142,0.25)",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+            }}
+          >
+            <i className="ti ti-device-floppy" style={{ fontSize: 12, marginRight: 5 }} aria-hidden="true" />
+            Guardar avance
+          </button>
         </div>
       </Card>
-
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-        <button
-          onClick={handleSaveProgress}
-          style={{
-            background: COLORS.teal,
-            color: "#fff",
-            border: "none",
-            borderRadius: 10,
-            padding: "8px 20px",
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            boxShadow: "0 2px 8px rgba(15,155,142,0.25)",
-          }}
-        >
-          <i className="ti ti-device-floppy" style={{ fontSize: 14, marginRight: 6 }} aria-hidden="true" />
-          Guardar avance
-        </button>
-      </div>
 
       {/* SINGLE QUESTION CAROUSEL ROW */}
       {(() => {
