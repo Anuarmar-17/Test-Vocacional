@@ -136,7 +136,7 @@ export default function TestVocacionalView() {
   }
 
   return (
-    <div style={{ padding: "2rem 2.5rem", maxWidth: 960, margin: "0 auto" }}>
+    <div style={{ padding: "1rem 2.5rem", maxWidth: 960, margin: "0 auto" }}>
       {/* HEADER SECTION */}
       <div
         style={{
