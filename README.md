@@ -223,57 +223,57 @@ Caso de uso 09 - 12: (Consultar información educativa, Gestionar preguntas, Ges
 
 ### Login
 
+**Pantalla de inicio de sesión**
 ![Login](./frontend/public/Mockups/Login/Login.png)
-*Pantalla de inicio de sesión*
 
+**Pantalla de registro de usuario**
 ![Registro](./frontend/public/Mockups/Login/Registro.png)
-*Pantalla de registro de usuario*
 
 ### Estudiante
 
+**Vista de inicio del estudiante**
 ![Inicio](./frontend/public/Mockups/Estudiante/Inicio.png)
-*Vista de inicio del estudiante*
 
+**Panel principal del estudiante**
 ![Panel](./frontend/public/Mockups/Estudiante/Panel.png)
-*Panel principal del estudiante*
 
+**Perfil del estudiante**
 ![Perfil](./frontend/public/Mockups/Estudiante/Perfil.png)
-*Perfil del estudiante*
 
+**Módulo de autoconocimiento**
 ![Autoconocimiento](./frontend/public/Mockups/Estudiante/Autoconocimiento.png)
-*Módulo de autoconocimiento*
 
+**Proyecto de vida del estudiante**
 ![Proyecto de vida](./frontend/public/Mockups/Estudiante/Proyecto%20de%20vida.png)
-*Proyecto de vida del estudiante*
 
+**Test vocacional**
 ![Test vocacional](./frontend/public/Mockups/Estudiante/Test%20vocacional.png)
-*Test vocacional*
 
+**Resultados del test vocacional**
 ![Resultados](./frontend/public/Mockups/Estudiante/Resultados.png)
-*Resultados del test vocacional*
 
 ### Admin
 
+**Vista general del panel administrativo**
 ![Vista general](./frontend/public/Mockups/Admin/Vista%20general.png)
-*Vista general del panel administrativo*
 
+**Panel de administración**
 ![Panel](./frontend/public/Mockups/Admin/Panel.png)
-*Panel de administración*
 
+**Gestión de preguntas**
 ![preguntas](./frontend/public/Mockups/Admin/preguntas.png)
-*Gestión de preguntas*
 
+**Gestión de profesiones**
 ![profesiones](./frontend/public/Mockups/Admin/profesiones.png)
-*Gestión de profesiones*
 
+**Listado de profesiones**
 ![profesiones2](./frontend/public/Mockups/Admin/profesiones2.png)
-*Listado de profesiones*
 
+**Gestión de usuarios**
 ![Usuarios](./frontend/public/Mockups/Admin/Usuarios.png)
-*Gestión de usuarios*
 
+**Detalles del usuario**
 ![Detalles de usuario](./frontend/public/Mockups/Admin/Detalles%20de%20usuario.png)
-*Detalles del usuario*
 
 ---
 
