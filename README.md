@@ -224,40 +224,56 @@ Caso de uso 09 - 12: (Consultar información educativa, Gestionar preguntas, Ges
 ### Login
 
 ![Login](./frontend/public/Mockups/Login/Login.png)
+*Pantalla de inicio de sesión*
 
 ![Registro](./frontend/public/Mockups/Login/Registro.png)
+*Pantalla de registro de usuario*
 
 ### Estudiante
 
 ![Inicio](./frontend/public/Mockups/Estudiante/Inicio.png)
+*Vista de inicio del estudiante*
 
 ![Panel](./frontend/public/Mockups/Estudiante/Panel.png)
+*Panel principal del estudiante*
 
 ![Perfil](./frontend/public/Mockups/Estudiante/Perfil.png)
+*Perfil del estudiante*
 
 ![Autoconocimiento](./frontend/public/Mockups/Estudiante/Autoconocimiento.png)
+*Módulo de autoconocimiento*
 
 ![Proyecto de vida](./frontend/public/Mockups/Estudiante/Proyecto%20de%20vida.png)
+*Proyecto de vida del estudiante*
 
 ![Test vocacional](./frontend/public/Mockups/Estudiante/Test%20vocacional.png)
+*Test vocacional*
 
 ![Resultados](./frontend/public/Mockups/Estudiante/Resultados.png)
+*Resultados del test vocacional*
 
 ### Admin
 
 ![Vista general](./frontend/public/Mockups/Admin/Vista%20general.png)
+*Vista general del panel administrativo*
 
 ![Panel](./frontend/public/Mockups/Admin/Panel.png)
+*Panel de administración*
 
 ![preguntas](./frontend/public/Mockups/Admin/preguntas.png)
+*Gestión de preguntas*
 
 ![profesiones](./frontend/public/Mockups/Admin/profesiones.png)
+*Gestión de profesiones*
 
 ![profesiones2](./frontend/public/Mockups/Admin/profesiones2.png)
+*Listado de profesiones*
 
 ![Usuarios](./frontend/public/Mockups/Admin/Usuarios.png)
+*Gestión de usuarios*
 
 ![Detalles de usuario](./frontend/public/Mockups/Admin/Detalles%20de%20usuario.png)
+*Detalles del usuario*
 
 ---
 
