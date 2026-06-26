@@ -233,8 +233,8 @@ Caso de uso 09 - 12: (Consultar información educativa, Gestionar preguntas, Ges
 
 **Vista de inicio del estudiante**
 ![Inicio](./frontend/public/Mockups/Estudiante/Inicio.png)
-
 **Panel principal del estudiante**
+
 ![Panel](./frontend/public/Mockups/Estudiante/Panel.png)
 
 **Perfil del estudiante**
@@ -256,8 +256,8 @@ Caso de uso 09 - 12: (Consultar información educativa, Gestionar preguntas, Ges
 
 **Vista general del panel administrativo**
 ![Vista general](./frontend/public/Mockups/Admin/Vista%20general.png)
-
 **Panel de administración**
+
 ![Panel](./frontend/public/Mockups/Admin/Panel.png)
 
 **Gestión de preguntas**
