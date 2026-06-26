@@ -213,6 +213,54 @@ Caso de uso 09 - 12: (Consultar información educativa, Gestionar preguntas, Ges
 
 ---
 
+## 🗄️ Diseño de la DB
+
+![Diagrama de la base de datos](./frontend/public/Mockups/Diseño%20de%20la%20db/DB.jpeg)
+
+---
+
+## 🎨 Mockups
+
+### Login
+
+![Login](./frontend/public/Mockups/Login/Login.png)
+
+![Registro](./frontend/public/Mockups/Login/Registro.png)
+
+### Estudiante
+
+![Inicio](./frontend/public/Mockups/Estudiante/Inicio.png)
+
+![Panel](./frontend/public/Mockups/Estudiante/Panel.png)
+
+![Perfil](./frontend/public/Mockups/Estudiante/Perfil.png)
+
+![Autoconocimiento](./frontend/public/Mockups/Estudiante/Autoconocimiento.png)
+
+![Proyecto de vida](./frontend/public/Mockups/Estudiante/Proyecto%20de%20vida.png)
+
+![Test vocacional](./frontend/public/Mockups/Estudiante/Test%20vocacional.png)
+
+![Resultados](./frontend/public/Mockups/Estudiante/Resultados.png)
+
+### Admin
+
+![Vista general](./frontend/public/Mockups/Admin/Vista%20general.png)
+
+![Panel](./frontend/public/Mockups/Admin/Panel.png)
+
+![preguntas](./frontend/public/Mockups/Admin/preguntas.png)
+
+![profesiones](./frontend/public/Mockups/Admin/profesiones.png)
+
+![profesiones2](./frontend/public/Mockups/Admin/profesiones2.png)
+
+![Usuarios](./frontend/public/Mockups/Admin/Usuarios.png)
+
+![Detalles de usuario](./frontend/public/Mockups/Admin/Detalles%20de%20usuario.png)
+
+---
+
 ## 👨‍💻 Autor
 
 Proyecto desarrollado como solución académica para orientación vocacional y proyecto de vida.
